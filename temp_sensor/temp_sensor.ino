@@ -12,8 +12,10 @@
 //#define testssl
 //#define prod
 
-// Data wire is plugged into pin 2 on the Arduino
-#define ONE_WIRE_BUS 15
+// Data wire is plugged into pin any gpio pin on esp32
+//use 4.7k pullup resistor to data line (pin 2 of ds18b20)
+//works fine off 3.3V
+#define ONE_WIRE_BUS 22
 OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
