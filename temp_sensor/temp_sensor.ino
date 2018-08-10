@@ -8,9 +8,7 @@
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
 
-#define test
-//#define testssl
-//#define prod
+//#define light
 
 // Data wire is plugged into pin any gpio pin on esp32
 //use 4.7k pullup resistor to data line (pin 2 of ds18b20)
@@ -19,10 +17,13 @@
 OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
-const char sensorID[] = "hall";
-String curToken;
-float thisTemp;
+const char sensorID[] = SENSOR_NAME;
 String Token;
+#ifdef light
+  //connect data pin (34 works) to side of photoresistor that is pulled to gnd with 10k (or less resistor, 680Ohm seems to work well)
+  //connect other side of photoresitor to 3.3V
+  #define PhotocellPin 34     // the cell and 10K pulldown are connected to a0 (gpi36)
+#endif
 
 ///////please enter your sensitive data in the Secret tab/secrets.h
 /////// Wifi Settings ///////
@@ -142,18 +143,61 @@ float temp() {
   return sensors.getTempCByIndex(0);
 }
 
-void updateAPI() {
+void updateAPI(float val, char type) {
   //Ensure token fits in here
   StaticJsonBuffer<500> jsonBuffer;
   //build json object
   Serial.print("SensorID is ");
   Serial.println(sensorID);
-  Serial.print("temp is ");
-  Serial.println(thisTemp);
+  Serial.print(type +" is ");
+  Serial.println(val);
   JsonObject& root = jsonBuffer.createObject();
-  root["type"] = "temp";
+  root["type"] = type;
   root["group"] = "julian";
-  root["value"] = thisTemp;
+  root["value"] = val;
+  root["sensor"] = sensorID;
+  root.printTo(Serial);
+  Serial.println();
+  Serial.println("making POST request");
+  http.begin(SERVER_443_data, root_ca);
+  http.addHeader("Authorization", Token);
+  http.addHeader("Content-Type", "application/json");
+  String input;
+  root.printTo(input);
+  int httpCode = http.POST(input);
+  // httpCode will be negative on error
+  if(httpCode > 0) {
+    // HTTP header has been send and Server response header has been handled
+    Serial.print("HTTP code = ");
+    Serial.println(httpCode);
+    if(httpCode == 401){
+    //token expired so get a new one
+      Token = getAuth();
+    }
+    // file found at server
+    if(httpCode == HTTP_CODE_OK) {
+        String payload = http.getString();
+        Serial.println(payload);
+    }
+  }else{
+    Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+  }
+  http.end();
+}
+
+//overload function for int
+void updateAPI(int val, char type) {
+  //Ensure token fits in here
+  StaticJsonBuffer<500> jsonBuffer;
+  //build json object
+  Serial.print("SensorID is ");
+  Serial.println(sensorID);
+  Serial.print(type +" is ");
+  Serial.println(val);
+  JsonObject& root = jsonBuffer.createObject();
+  root["type"] = type;
+  root["group"] = "julian";
+  root["value"] = val;
   root["sensor"] = sensorID;
   root.printTo(Serial);
   Serial.println();
@@ -185,49 +229,10 @@ void updateAPI() {
 }
 
 void loop() {
-  #ifdef test
-    thisTemp = temp();
-    Serial.println(thisTemp);
-    updateAPI();
-//    http.begin(SERVER_80);
-//    Serial.println(Token);
-//    http.addHeader("Authorization", Token);
-//    int httpCode = http.GET();
-//    if (httpCode > 0) { //Check for the returning code 
-//        String payload = http.getString();
-//        Serial.println(httpCode);
-//        Serial.println(payload);
-//      }else {
-//      Serial.println("Error on HTTP request");
-//    }
-//    http.end(); //Free the resources
-//    thisTemp = thisTemp + 0.50;
-//    Serial.print(thisTemp);
-    delay(10000);
+  float thisTemp = temp();
+  updateAPI(thisTemp, 'temp');
+  #ifdef light
+    updateAPI(analogRead(PhotocellPin), 'light');
   #endif
-  #ifdef testssl
-    http.begin(SERVER_443, root_ca); //Specify the URL and certificate
-    int httpCode = http.GET();
-    if (httpCode > 0) { //Check for the returning code 
-        String payload = http.getString();
-        Serial.println(httpCode);
-        Serial.println(payload);
-      }else {
-      Serial.println("Error on HTTP request");
-    } 
-    http.end(); //Free the resources
-    delay(10000);
-  #endif
-//  getAuth();
-//  float thisTemp = temp();
-//  Serial.print("Temperature for Device 1 is: ");
-//  Serial.println(thisTemp);
-//  int resp = updateAPI();
-//  if (resp == 200) { //Consider testing for 401
-//    Serial.println("Data successfully posted");
-//  }else if (resp == 401){
-//    getAuth();
-//    resp = updateAPI();
-//  }
-//  delay(5000);
+  delay(10000);
 }
