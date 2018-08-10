@@ -2,10 +2,9 @@
   <div class='wrapper'>
     <div class='main-head'>
       <app-nav></app-nav>
-      <h1>Boiler behaviour</h1>
-      <h3>Boiler state is {{ state }}</h3>
+      <h1>House data</h1>
     </div>
-    <div class='side'>
+    <!-- <div class='side'>
       <select v-model="site" multiple>
         <option disabled value="">Select location(s) to graph</option>
         <option v-for="item in locations" v-bind:key="item">{{ item }}</option>
@@ -39,10 +38,10 @@
         <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
       </select>
       <button v-on:click="graph({'items':graph_items, 'range':range, 'period':period})">Make the graph</button>
-    </div>
+    </div> -->
     <div class='content'>
-      <vue-plotly :data="this.data" :layout="this.layout" :options="options"/>
-    <!-- <vue-plotly :data="data[1]" :layout="layout" :options="options"/> -->
+      <vue-plotly :data="data" :layout="layout" :options="options"/>
+      <!-- <vue-plotly :data="data[1]" :layout="layout" :options="options"/> -->
     </div>
   </div>
 </template>
@@ -56,6 +55,7 @@ export default {
   name: 'graphs',
   data () {
     return {
+      data: [],
       datatypes: [],
       locations: [],
       sensorIDs: [],
@@ -64,14 +64,18 @@ export default {
       val: ['24_hours', '7_days', '2_months', '1_year', '5_years'],
       label: ['Hours', 'Days', 'Months', 'Year', 'Years'],
       graph_items: [],
-      layout: {
+      // layout: {
+      //   'title': 'House data',
+      //   'yaxis': {'title': 'Temperature'},
+      //   'yaxis2': {'title': 'Percent', 'overlaying': 'y', 'side': 'right'}
+      // },
+      laoyout: {
         'title': 'House data',
         'yaxis': {'title': 'Temperature'},
-        'yaxis2': {'title': 'Percent', 'overlaying': 'y', 'side': 'right'}
       },
       options: {},
       timeRes: '',
-      state: ''
+      firstdata: {'measurement': [{'location': 'marcus', 'sensors':[{'id': 'lounge', 'type': 'temp'}]}], 'range':'24_hours', 'period': 24}
     }
   },
   components: {
@@ -79,6 +83,15 @@ export default {
     VuePlotly
   },
   methods: {
+    loadedGraph () {
+      // console.log(payload)
+      postCustomData(this.firstdata).then((ret) => {
+        // console.log(ret)
+        // this.data = ret.data
+        // console.log(this.data)
+        this.data = this.convTime(ret.data)
+      })
+    },
     getValues () {
       getSensorDataTypes().then((ret) => {
         // console.log(ret)
@@ -110,6 +123,7 @@ export default {
     }
   },
   mounted () {
+    this.loadedGraph()
     this.getValues()
   }
 }
