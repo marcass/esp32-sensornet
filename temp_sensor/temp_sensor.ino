@@ -8,7 +8,7 @@
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
 
-//#define light
+#define light
 
 // Data wire is plugged into pin any gpio pin on esp32
 //use 4.7k pullup resistor to data line (pin 2 of ds18b20)
@@ -143,7 +143,7 @@ float temp() {
   return sensors.getTempCByIndex(0);
 }
 
-void updateAPI(float val, char type) {
+void updateAPI(float val, String type) {
   //Ensure token fits in here
   StaticJsonBuffer<500> jsonBuffer;
   //build json object
@@ -153,7 +153,7 @@ void updateAPI(float val, char type) {
   Serial.println(val);
   JsonObject& root = jsonBuffer.createObject();
   root["type"] = type;
-  root["group"] = "julian";
+  root["group"] = SITE;
   root["value"] = val;
   root["sensor"] = sensorID;
   root.printTo(Serial);
@@ -186,7 +186,7 @@ void updateAPI(float val, char type) {
 }
 
 //overload function for int
-void updateAPI(int val, char type) {
+void updateAPI(int val, String type) {
   //Ensure token fits in here
   StaticJsonBuffer<500> jsonBuffer;
   //build json object
@@ -196,7 +196,7 @@ void updateAPI(int val, char type) {
   Serial.println(val);
   JsonObject& root = jsonBuffer.createObject();
   root["type"] = type;
-  root["group"] = "julian";
+  root["group"] = SITE;
   root["value"] = val;
   root["sensor"] = sensorID;
   root.printTo(Serial);
@@ -230,9 +230,9 @@ void updateAPI(int val, char type) {
 
 void loop() {
   float thisTemp = temp();
-  updateAPI(thisTemp, 'temp');
+  updateAPI(thisTemp, "temp");
   #ifdef light
-    updateAPI(analogRead(PhotocellPin), 'light');
+    updateAPI(analogRead(PhotocellPin), "light");
   #endif
   delay(10000);
 }
