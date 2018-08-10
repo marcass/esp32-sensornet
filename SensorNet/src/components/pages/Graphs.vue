@@ -46,17 +46,19 @@
 </template>
 
 <script>
-import { getBoilerData, getBoilerValues, postCustomData, getBoilerState } from '../../../utils/door-api'
+import { getSensorDataTypes, postCustomData } from '../../../utils/door-api'
 import AppNav from '../AppNav'
 import VuePlotly from '@statnett/vue-plotly'
 // import Plotly from 'plotly.js/dist/plotly'
 export default {
-  name: 'doors',
+  name: 'graphs',
   data () {
     return {
-      data: [],
-      period: 1,
-      range: '7_days',
+      datatypes: [],
+      period: ,
+      locations: [],
+      sensorIDs: [],
+      range: '',
       table: [{'label': 'Hours', 'val': '24_hours'}, {'label': 'Days', 'val': '7_days'}, {'label': 'Months', 'val': '2_months'}, {'label': 'Year', 'val': '1_year'}, {'label': 'Years', 'val': '5_years'}],
       val: ['24_hours', '7_days', '2_months', '1_year', '5_years'],
       label: ['Hours', 'Days', 'Months', 'Year', 'Years'],
@@ -64,7 +66,7 @@ export default {
       values: [],
       graph_items: [],
       layout: {
-        'title': 'Boiler data',
+        'title': 'House data',
         'yaxis': {'title': 'Temperature'},
         'yaxis2': {'title': 'Percent', 'overlaying': 'y', 'side': 'right'}
       },
@@ -84,9 +86,11 @@ export default {
       })
     },
     getValues () {
-      getBoilerValues().then((ret) => {
+      getSensorDataTypes().then((ret) => {
         console.log(ret)
-        this.values = ret.values
+        this.datatypes = ret.types
+        this.locations = ret.measurements
+        this.sensorIDs = ret.sensorIDs
       })
     },
     graph (payload) {

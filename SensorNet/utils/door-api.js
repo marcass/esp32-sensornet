@@ -17,7 +17,7 @@ axios.defaults.headers.delete['Content-Type'] = 'application/json';
 //     console.log('RES', res);
 // });
 
-export { getSensorDataTypes, getBoilerValues, postCustomData };
+export { getSensorDataTypes, postCustomData };
 
 function simple_get(url) {
   return axios.get(url)
@@ -31,21 +31,16 @@ function getSensorDataTypes() {
   return simple_get(url)
 }
 
-function getBoilerValues() {
-  const url = BASE_URL+'/boiler/values'
-  return simple_get(url)
-}
-
 function postCustomData(payload) {
-  const url = BASE_URL+'/data'
+  const url = BASE_URL+'/data/values'
   return axios.post(url, payload);
 }
 
-function delDoor(door) {
-  const url = BASE_URL+'/door/'
-  // console.log(user)
-  return axios.delete(url+door)
-  .then(function (response) {
-      return response.data
-  });
+// function delDoor(door) {
+//   const url = BASE_URL+'/door/'
+//   // console.log(user)
+//   return axios.delete(url+door)
+//   .then(function (response) {
+//       return response.data
+//   });
 }
