@@ -1,5 +1,5 @@
 
-//connect data pin (34 works) to side of photoresistor that is pulled to gnd with 10k (or more resistor)
+//connect data pin (34 works) to side of photoresistor that is pulled to gnd with 10k (or less resistor, 680Ohm seems to work well)
 //connect other side of photoresitor to 3.3V
 #define PhotocellPin 34     // the cell and 10K pulldown are connected to a0 (gpi36)
 
