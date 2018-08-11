@@ -5,9 +5,9 @@
       <h1>House data</h1>
     </div>
     <!-- <div class='side'>
-      <select v-model="site" multiple>
-        <option disabled value="">Select location(s) to graph</option>
-        <option v-for="item in locations" v-bind:key="item">{{ item }}</option>
+      <select v-model="site">
+        <option disabled value="">Select sites(s) to graph</option>
+        <option v-for="item.site in values" v-bind:key="item.site">{{ item.site }}</option>
       </select>
       <select v-model="graph_items" multiple>
         <option disabled value="">Select attribute(s) to graph</option>
@@ -56,9 +56,11 @@ export default {
   data () {
     return {
       data: [],
-      datatypes: [],
-      locations: [],
-      sensorIDs: [],
+      site: [],
+      // datatypes: [],
+      // locations: [],
+      // sensorIDs: [],
+      values: [],
       period: 1,
       range: '',
       val: ['24_hours', '7_days', '2_months', '1_year', '5_years'],
@@ -75,7 +77,7 @@ export default {
       },
       options: {},
       timeRes: '',
-      firstdata: {'measurement': [{'location': 'marcus', 'sensors':[{'id': 'lounge', 'type': 'temp'}]}], 'range':'24_hours', 'period': 24}
+      firstdata: {'measurement': [{'location': 'marcus', 'sensors':[{'id': 'lounge', 'type': 'temp'}]}], 'range':'marcus_7_days', 'period': 1}
     }
   },
   components: {
@@ -94,10 +96,11 @@ export default {
     },
     getValues () {
       getSensorDataTypes().then((ret) => {
-        // console.log(ret)
-        this.datatypes = ret.types
-        this.locations = ret.measurements
-        this.sensorIDs = ret.sensorIDs
+        console.log(ret)
+        // this.datatypes = ret.types
+        // this.locations = ret.measurements
+        // this.sensorIDs = ret.sensorIDs
+        this.values = ret
       })
     },
     graph (payload) {

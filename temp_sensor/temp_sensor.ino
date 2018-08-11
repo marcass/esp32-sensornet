@@ -8,7 +8,7 @@
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
 
-#define light
+//#define light
 
 // Data wire is plugged into pin any gpio pin on esp32
 //use 4.7k pullup resistor to data line (pin 2 of ds18b20)
