@@ -69,7 +69,7 @@ export default {
       //   'yaxis': {'title': 'Temperature'},
       //   'yaxis2': {'title': 'Percent', 'overlaying': 'y', 'side': 'right'}
       // },
-      laoyout: {
+      layout: {
         'title': 'House data',
         'yaxis': {'title': 'Temperature'},
       },
@@ -105,6 +105,7 @@ export default {
       postCustomData(payload).then((ret) => {
         // console.log(ret)
         this.data = this.convTime(ret.data)
+        // console.log(this.data)
       })
     },
     convTime (data) {
@@ -119,6 +120,7 @@ export default {
         const result = arr.map(dates)
         data[i].x = result
       }
+      console.log(data)
       return data
     }
   },

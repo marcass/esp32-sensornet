@@ -32,7 +32,7 @@ function getSensorDataTypes() {
 }
 
 function postCustomData(payload) {
-  console.log(payload)
+  // console.log(payload)
   const url = BASE_URL+'/data/values'
   return axios.post(url, payload);
 }
