@@ -4,26 +4,36 @@
 // with instructions: https://techtutorialsx.com/2017/05/19/esp32-http-get-requests/
 #include <HTTPClient.h>
 #include "secrets.h"
-#include <OneWire.h>
-#include <DallasTemperature.h>
 #include <ArduinoJson.h>
 
+//#define dallas_temp
 //#define light
+#define DHTHum
 
-// Data wire is plugged into pin any gpio pin on esp32
-//use 4.7k pullup resistor to data line (pin 2 of ds18b20)
-//works fine off 3.3V
-#define ONE_WIRE_BUS 22
-OneWire oneWire(ONE_WIRE_BUS);
-// Pass our oneWire reference to Dallas Temperature.
-DallasTemperature sensors(&oneWire);
-const char sensorID[] = SENSOR_NAME;
-String Token;
+#ifdef dallas_temp
+  #include <OneWire.h>
+  #include <DallasTemperature.h>
+  // Data wire is plugged into pin any gpio pin on esp32
+  //use 4.7k pullup resistor to data line (pin 2 of ds18b20)
+  //works fine off 3.3V
+  #define ONE_WIRE_BUS 22
+  OneWire oneWire(ONE_WIRE_BUS);
+  // Pass our oneWire reference to Dallas Temperature.
+  DallasTemperature sensors(&oneWire);
+#endif
+#ifdef DHTHum
+ #include "DHTesp.h"
+ #define H_PIN 22
+ DHTesp dht;
+#endif
 #ifdef light
   //connect data pin (34 works) to side of photoresistor that is pulled to gnd with 10k (or less resistor, 680Ohm seems to work well)
   //connect other side of photoresitor to 3.3V
   #define PhotocellPin 34     // the cell and 10K pulldown are connected to a0 (gpi36)
 #endif
+
+const char sensorID[] = SENSOR_NAME;
+String Token;
 
 ///////please enter your sensitive data in the Secret tab/secrets.h
 /////// Wifi Settings ///////
@@ -75,8 +85,13 @@ void setup() {
   Serial.begin(115200);
   delay(2000);
   connectWifi();
-  // Start up the temperature measurement library
-  sensors.begin();
+  #ifdef dallas_temp
+    // Start up the temperature measurement library
+    sensors.begin();
+  #endif
+  #ifdef DHTHum
+    dht.setup(H_PIN, DHTesp::DHT22);
+  #endif
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
@@ -129,19 +144,21 @@ String getAuth() {
   return "Bearer "+ String(jwt_token);
 }
 
-float temp() {
-  Serial.print("Measuing temp...");
-  sensors.requestTemperatures(); // Send the command to get temperatures
-  Serial.println("DONE");
-  // Why "byIndex"?
-  // You can have more than one IC on the same bus.
-  // 0 refers to the first IC on the wire
-//  float intemp = sensors.getTempCByIndex(0);
-//  // Convert to string
-//  char buffer[12];
-//  return itoa(intemp,buffer,10); //(integer, yourBuffer, base)
-  return sensors.getTempCByIndex(0);
-}
+#ifdef dallas_temp
+  float temp() {
+    Serial.print("Measuing temp...");
+    sensors.requestTemperatures(); // Send the command to get temperatures
+    Serial.println("DONE");
+    // Why "byIndex"?
+    // You can have more than one IC on the same bus.
+    // 0 refers to the first IC on the wire
+  //  float intemp = sensors.getTempCByIndex(0);
+  //  // Convert to string
+  //  char buffer[12];
+  //  return itoa(intemp,buffer,10); //(integer, yourBuffer, base)
+    return sensors.getTempCByIndex(0);
+  }
+#endif
 
 void updateAPI(float val, String type) {
   //Ensure token fits in here
@@ -229,8 +246,16 @@ void updateAPI(int val, String type) {
 }
 
 void loop() {
-  float thisTemp = temp();
-  updateAPI(thisTemp, "temp");
+  #ifdef dallas_temp
+    float thisTemp = temp();
+    updateAPI(thisTemp, "temp");
+  #endif
+  #ifdef DHTHum
+    float hum = dht.getHumidity(); 
+    updateAPI(hum, "humidity");
+    float thisTemp = dht.getTemperature();
+    updateAPI(thisTemp, "temp");
+  #endif
   #ifdef light
     updateAPI(analogRead(PhotocellPin), "light");
   #endif

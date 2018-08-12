@@ -4,14 +4,17 @@
       <app-nav></app-nav>
       <h1>House data</h1>
     </div>
-    <!-- <div class='side'>
-      <select v-model="site">
+    <div class='side'>
+      <div>
+        <button v-for="item in sites" v-on:click="getValues(item)">Get values for this site: {{ item }}</button>
+      </div>
+      <!-- <select v-model="site">
         <option disabled value="">Select sites(s) to graph</option>
-        <option v-for="item.site in values" v-bind:key="item.site">{{ item.site }}</option>
-      </select>
-      <select v-model="graph_items" multiple>
+        <option v-for="item in values.sites" v-bind:key="item">{{ item }}</option>
+      </select> -->
+      <!-- <select v-model="graph_items" multiple>
         <option disabled value="">Select attribute(s) to graph</option>
-        <option v-for="item in sensorIDs" v-bind:key="item">{{ item }}</option>
+        <option v-for="item in values.types" v-bind:key="item">{{ item }}</option>
       </select>
       <select v-model="range">
         <option disabled value="a">Select graph range</option>
@@ -37,8 +40,8 @@
         <option disabled value="">Select graph period in Years</option>
         <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
       </select>
-      <button v-on:click="graph({'items':graph_items, 'range':range, 'period':period})">Make the graph</button>
-    </div> -->
+      <button v-on:click="graph({'items':graph_items, 'range':range, 'period':period})">Make the graph</button> -->
+    </div>
     <div class='content'>
       <vue-plotly :data="data" :layout="layout" :options="options"/>
       <!-- <vue-plotly :data="data[1]" :layout="layout" :options="options"/> -->
@@ -47,7 +50,7 @@
 </template>
 
 <script>
-import { getSensorDataTypes, postCustomData } from '../../../utils/door-api'
+import { getSensorDataTypes, postCustomData, getSites } from '../../../utils/door-api'
 import AppNav from '../AppNav'
 import VuePlotly from '@statnett/vue-plotly'
 // import Plotly from 'plotly.js/dist/plotly'
@@ -56,7 +59,7 @@ export default {
   data () {
     return {
       data: [],
-      site: [],
+      sites: [],
       // datatypes: [],
       // locations: [],
       // sensorIDs: [],
@@ -77,7 +80,7 @@ export default {
       },
       options: {},
       timeRes: '',
-      firstdata: {'measurement': [{'location': 'marcus', 'sensors':[{'id': 'lounge', 'type': 'temp'}]}], 'range':'marcus_7_days', 'period': 1}
+      firstdata: {'measurement': [{'site': 'marcus', 'sensors':[{'id': 'lounge', 'type': 'temp'}]}], 'range':'temp_7_days', 'period': 1}
     }
   },
   components: {
@@ -94,8 +97,8 @@ export default {
         this.data = this.convTime(ret.data)
       })
     },
-    getValues () {
-      getSensorDataTypes().then((ret) => {
+    getValues (site) {
+      getSensorDataTypes(site).then((ret) => {
         console.log(ret)
         // this.datatypes = ret.types
         // this.locations = ret.measurements
@@ -125,11 +128,20 @@ export default {
       }
       console.log(data)
       return data
+    },
+    getSitesnow () {
+      getSites().then((ret) => {
+        console.log(ret)
+        // this.datatypes = ret.types
+        // this.locations = ret.measurements
+        // this.sensorIDs = ret.sensorIDs
+        this.sites = ret
+      })
     }
   },
   mounted () {
     this.loadedGraph()
-    this.getValues()
+    this.getSitesnow()
   }
 }
 </script>
