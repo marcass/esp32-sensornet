@@ -26,26 +26,15 @@ export default {
     // [tree-nav.name]: LiquorTree
   },
   data: () => ({
-    datatree: '',
     authtreeData: [
-      {text: 'DoorOverlord',
+      {text: 'GraphingTheThings',
         children: [
           {text: 'Logout'},
           {text: 'Users',
             children: [
-              {text: 'UserUpdate'},
-              {text: 'EditUser'},
-              {text: 'ListAllowed'},
-              {text: 'AddUser'}
+              {text: 'UserUpdate'}
             ]
-          },
-          {text: 'Doors',
-            children: [
-              {text: 'StatusLog'},
-              {text: 'SetupDoor'}
-            ]
-          },
-          {text: 'Boiler'}
+          }
         ]
       }
     ]

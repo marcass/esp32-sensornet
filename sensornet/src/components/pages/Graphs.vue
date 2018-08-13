@@ -2,7 +2,6 @@
   <div class='wrapper'>
     <div class='main-head'>
       <app-nav></app-nav>
-      <h1>House data</h1>
     </div>
     <div class='side'>
       <div>
