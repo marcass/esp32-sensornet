@@ -4,11 +4,11 @@
 // with instructions: https://techtutorialsx.com/2017/05/19/esp32-http-get-requests/
 #include <HTTPClient.h>
 #include "secrets.h"
-#include <ArduinoJson.h>
+#include <ArduinoJson.h> //using version 5
 
-//#define dallas_temp
-//#define light
-#define DHTHum
+#define dallas_temp
+#define light
+//#define DHTHum
 
 #ifdef dallas_temp
   #include <OneWire.h>
@@ -21,11 +21,13 @@
   // Pass our oneWire reference to Dallas Temperature.
   DallasTemperature sensors(&oneWire);
 #endif
+
 #ifdef DHTHum
  #include "DHTesp.h"
  #define H_PIN 22
  DHTesp dht;
 #endif
+
 #ifdef light
   //connect data pin (34 works) to side of photoresistor that is pulled to gnd with 10k (or less resistor, 680Ohm seems to work well)
   //connect other side of photoresitor to 3.3V
@@ -85,13 +87,16 @@ void setup() {
   Serial.begin(115200);
   delay(2000);
   connectWifi();
+  
   #ifdef dallas_temp
     // Start up the temperature measurement library
     sensors.begin();
   #endif
+  
   #ifdef DHTHum
     dht.setup(H_PIN, DHTesp::DHT22);
   #endif
+  
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
@@ -104,7 +109,7 @@ void setup() {
 
 String getAuth() {
   String payload;
-  //Ensure token fits in here
+//  DynamicJsonBuffer  jsonBuffer(200);
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& creds = jsonBuffer.createObject();
   creds["username"] = API_user;
@@ -114,6 +119,7 @@ String getAuth() {
   http.addHeader("Content-Type", "application/json");
   String input;
   creds.printTo(input);
+//  Serial.println(input);
   int httpCode = http.POST(input);
   // httpCode will be negative on error
   if(httpCode > 0) {
@@ -162,6 +168,7 @@ String getAuth() {
 
 void updateAPI(float val, String type) {
   //Ensure token fits in here
+//  DynamicJsonBuffer  jsonBuffer(500);
   StaticJsonBuffer<500> jsonBuffer;
   //build json object
   Serial.print("SensorID is ");
@@ -205,6 +212,7 @@ void updateAPI(float val, String type) {
 //overload function for int
 void updateAPI(int val, String type) {
   //Ensure token fits in here
+//  DynamicJsonBuffer  jsonBuffer(500);
   StaticJsonBuffer<500> jsonBuffer;
   //build json object
   Serial.print("SensorID is ");
@@ -250,14 +258,17 @@ void loop() {
     float thisTemp = temp();
     updateAPI(thisTemp, "temp");
   #endif
+  
   #ifdef DHTHum
     float hum = dht.getHumidity(); 
     updateAPI(hum, "humidity");
     float thisTemp = dht.getTemperature();
     updateAPI(thisTemp, "temp");
   #endif
+  
   #ifdef light
     updateAPI(analogRead(PhotocellPin), "light");
   #endif
+  
   delay(10000);
 }
