@@ -5,14 +5,14 @@
     </div>
     <div class='side'>
       <div>
-        <button v-for="item in sites" v-bind:key="item" v-on:click="getValues(item)">Get values for this site: {{ item }}</button>
+        <button v-for="(item, index) in sites" v-bind:key="index" v-on:click="getValues(item)">Get values for this site: {{ item }}</button>
       </div>
       <div v-if="disp">
         <div>
             <select v-model="trace" multiple>
             <!-- <div v-for="type in item.sensors" v-bind:key="type"> -->
               <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="item in values.traces" v-bind:key="item" >{{ item.name }}+{{ item.sensor }}</option>
+              <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.name }}+{{ item.sensor }}</option>
             </select>
           <select v-model="range">
             <option disabled value="a">Select graph range</option>
@@ -80,10 +80,11 @@ export default {
       //   'yaxis': {'title': 'Temperature'},
       //   'yaxis2': {'title': 'Percent', 'overlaying': 'y', 'side': 'right'}
       // },
-      layout: {
-        'title': 'House data',
-        'yaxis': {'title': 'Temperature'},
-      },
+      layout: {},
+      // layout: {
+      //   'title': 'House data',
+      //   'yaxis': {'title': 'Temperature'},
+      // },
       options: {},
       timeRes: '',
       firstdata: {'measurement': [{'site': 'marcus', 'sensors':[{'id': 'lounge', 'type': 'temp'}]}], 'range':'temp_7_days', 'period': 1},
@@ -98,7 +99,7 @@ export default {
   methods: {
     loadedGraph () {
       // console.log(payload)
-      postCustomData(this.firstdata).then((ret) => {
+      postStartData(this.firstdata).then((ret) => {
         // console.log(ret)
         // this.data = ret.data
         // console.log(this.data)
@@ -115,19 +116,12 @@ export default {
         this.disp = true
       })
     },
-    graph (payload) {
-      // console.log(payload)
-      postStartData(payload).then((ret) => {
-        // console.log(ret)
-        this.data = this.convTime(ret.data)
-        // console.log(this.data)
-      })
-    },
     graphCust (payload) {
       // console.log(payload)
       postCustomData(payload).then((ret) => {
-        // console.log(ret)
-        this.data = this.convTime(ret.data)
+        console.log(ret)
+        this.layout = ret.data.layout
+        this.data = this.convTime(ret.data.data)
         // console.log(this.data)
       })
     },
