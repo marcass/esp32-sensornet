@@ -75,20 +75,17 @@ export default {
       val: ['24_hours', '7_days', '2_months', '1_year', '5_years'],
       label: ['Hours', 'Days', 'Months', 'Year', 'Years'],
       graph_items: [],
-<<<<<<< HEAD
       // layout: {
       //   'title': 'House data',
       //   'yaxis': {'title': 'Temperature'},
       //   'yaxis2': {'title': 'Percent', 'overlaying': 'y', 'side': 'right'}
       // },
       layout: {},
-=======
-      layout: {
-        'title': 'House data',
-        'yaxis': {'title': 'Temperature'},
-        'yaxis2': {'title': 'Light', 'overlaying': 'y', 'side': 'right'}
-      },
->>>>>>> 32b88394a9d6cb863998aad745b86e560cea9b52
+      // layout: {
+      //   'title': 'House data',
+      //   'yaxis': {'title': 'Temperature'},
+      //   'yaxis2': {'title': 'Light', 'overlaying': 'y', 'side': 'right'}
+      // },
       // layout: {
       //   'title': 'House data',
       //   'yaxis': {'title': 'Temperature'},
