@@ -6,6 +6,17 @@
 #include "secrets.h"
 #include <ArduinoJson.h> //using version 5
 
+/* secrets.h format
+ *  #define MYSSID ""
+ *  #define PASS ""
+ *  #define SENSOR_NAME ""  //location of sensor node (eg "lounge"
+ *  #define SITE ""  //Site of sensor net install
+ *  String API_user = "";
+ *  String API_pass = "";
+ *  #define SERVER_443_data "https://<url of api endpoint for data ingress>"
+ *  #define SERVER_443_auth "https://<auth route>"  
+ */  
+
 #define dallas_temp
 #define light
 //#define DHTHum
