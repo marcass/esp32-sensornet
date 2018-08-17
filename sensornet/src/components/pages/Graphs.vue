@@ -11,7 +11,7 @@
       </div>
       <div v-if="selection == "sites">
         <div>
-          <button v-for="(item, index) in sites" v-bind:key="index" v-on:click="getValues(item)">Get values for this site: {{ item }}</button>
+          <button v-for="(item, index) in sites" v-bind:key="index" v-on:click="getSiteValues(item)">Get values for this site: {{ item }}</button>
         </div>
         <div v-if="disp">
           <div>
@@ -49,14 +49,14 @@
         </div>
       </div>
       <div v-if="selection == "type">
-        <button v-for="(item, index) in types" v-bind:key="index" v-on:click="getValues(item)">Get values for {{ item }}</button>
+        <button v-for="(item, index) in types" v-bind:key="index" v-on:click="getTypeValues(item)">Get values for {{ item }}</button>
         <div v-if="disp">
           <div>
-              <select v-model="trace" multiple>
-              <!-- <div v-for="type in item.sensors" v-bind:key="type"> -->
-                <option disabled value="">Select sensor(s) to graph</option>
-                <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.name }}+{{ item.sensor }}</option>
-              </select>
+            <select v-model="trace" multiple>
+            <!-- <div v-for="type in item.sensors" v-bind:key="type"> -->
+              <option disabled value="">Select sensor(s) to graph</option>
+              <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.name }}+{{ item.sensor }}</option>
+            </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
               <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
@@ -89,11 +89,11 @@
         <button v-for="(item, index) in allvals" v-bind:key="index" v-on:click="getAllValues()">Get values for {{ item }}</button>
         <div v-if="disp">
           <div>
-              <select v-model="trace" multiple>
-              <!-- <div v-for="type in item.sensors" v-bind:key="type"> -->
-                <option disabled value="">Select sensor(s) to graph</option>
-                <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.site }}+{{ item.name }}+{{ item.sensor }}</option>
-              </select>
+            <select v-model="trace" multiple>
+            <!-- <div v-for="type in item.sensors" v-bind:key="type"> -->
+              <option disabled value="">Select sensor(s) to graph</option>
+              <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.site }}+{{ item.name }}+{{ item.sensor }}</option>
+            </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
               <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
@@ -131,7 +131,7 @@
 </template>
 
 <script>
-import { postStartData, getSensorDataTypes, postCustomData, getSites } from '../../../utils/door-api'
+import { postStartData, getSensorDataSites, getSensorDataAll, getSensorDataTypes, postCustomData, getSites } from '../../../utils/door-api'
 import AppNav from '../AppNav'
 import VuePlotly from '@statnett/vue-plotly'
 // import Plotly from 'plotly.js/dist/plotly'
@@ -188,7 +188,7 @@ export default {
       })
     },
     getSiteValues (site) {
-      getSensorDataTypes(site).then((ret) => {
+      getSensorDataSites(site).then((ret) => {
         // {'traces': [{u'humidity': []}, {u'light': [u'lounge']}, {u'temp': [u'downhall', u'lounge', u'spare', u'window']}], 'site': u'marcus', 'types': [u'light', u'temp']}
         // this.datatypes = ret.types
         // this.locations = ret.measurements
@@ -197,7 +197,7 @@ export default {
         this.disp = true
       })
     },
-    getTypeValues () {
+    getTypeValues (type) {
       getSensorDataTypes(type).then((ret) => {
         // {'traces': [{u'humidity': []}, {u'light': [u'lounge']}, {u'temp': [u'downhall', u'lounge', u'spare', u'window']}], 'site': u'marcus', 'types': [u'light', u'temp']}
         // this.datatypes = ret.types
@@ -208,7 +208,7 @@ export default {
       })
     },
     getAllValues () {
-      getSensorDataTypes(all).then((ret) => {
+      getSensorDataAll().then((ret) => {
         // {'traces': [{u'humidity': []}, {u'light': [u'lounge']}, {u'temp': [u'downhall', u'lounge', u'spare', u'window']}], 'site': u'marcus', 'types': [u'light', u'temp']}
         // this.datatypes = ret.types
         // this.locations = ret.measurements
