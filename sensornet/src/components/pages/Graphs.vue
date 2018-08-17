@@ -9,51 +9,13 @@
         <button v-on:click="getTypeList()">Get values by measurement type</button>
         <button v-on:click="getAllValues()">Get all values</button>
       </div>
-      <div v-if="selection == "sites">
+      <div v-if="selection == 'sites'">
         <div>
           <button v-for="(item, index) in sites" v-bind:key="index" v-on:click="getSiteValues(item)">Get values for this site: {{ item }}</button>
         </div>
         <div v-if="disp">
           <div>
-              <select v-model="trace" multiple>
-              <!-- <div v-for="type in item.sensors" v-bind:key="type"> -->
-                <option disabled value="">Select sensor(s) to graph</option>
-                <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.name }}+{{ item.sensor }}</option>
-              </select>
-            <select v-model="range">
-              <option disabled value="a">Select graph range</option>
-              <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
-            </select>
-            <select v-model="period" v-if="range == '24_hours'">
-              <option disabled value="">Select graph period in hours</option>
-              <option v-for="n in 24" v-bind:key="n">{{ n }}</option>
-            </select>
-            <select v-model="period" v-if="range == '7_days'">
-              <option disabled value="">Select graph period in days</option>
-              <option v-for="n in 7" v-bind:key="n">{{ n }}</option>
-            </select>
-            <select v-model="period" v-if="range == '2_months'">
-              <option disabled value="">Select graph period in days</option>
-              <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
-            </select>
-            <select v-model="period" v-if="range == '1_year'">
-              <option disabled value="">Select graph period in Months</option>
-              <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
-            </select>
-            <select v-model="period" v-if="range == '5_years'">
-              <option disabled value="">Select graph period in Years</option>
-              <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
-            </select>
-            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'site': values.site})">Make the graph</button>
-          </div>
-        </div>
-      </div>
-      <div v-if="selection == "type">
-        <button v-for="(item, index) in types" v-bind:key="index" v-on:click="getTypeValues(item)">Get values for {{ item }}</button>
-        <div v-if="disp">
-          <div>
             <select v-model="trace" multiple>
-            <!-- <div v-for="type in item.sensors" v-bind:key="type"> -->
               <option disabled value="">Select sensor(s) to graph</option>
               <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.name }}+{{ item.sensor }}</option>
             </select>
@@ -65,19 +27,19 @@
               <option disabled value="">Select graph period in hours</option>
               <option v-for="n in 24" v-bind:key="n">{{ n }}</option>
             </select>
-            <select v-model="period" v-if="range == '7_days'">
+            <select v-model="period" v-else-if="range == '7_days'">
               <option disabled value="">Select graph period in days</option>
               <option v-for="n in 7" v-bind:key="n">{{ n }}</option>
             </select>
-            <select v-model="period" v-if="range == '2_months'">
+            <select v-model="period" v-else-if="range == '2_months'">
               <option disabled value="">Select graph period in days</option>
               <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
             </select>
-            <select v-model="period" v-if="range == '1_year'">
+            <select v-model="period" v-else-if="range == '1_year'">
               <option disabled value="">Select graph period in Months</option>
               <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
             </select>
-            <select v-model="period" v-if="range == '5_years'">
+            <select v-model="period" v-else-if="range == '5_years'">
               <option disabled value="">Select graph period in Years</option>
               <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
             </select>
@@ -85,12 +47,47 @@
           </div>
         </div>
       </div>
-      <div v-if="selection == "all">
+      <div v-if="selection == 'type'">
+        <button v-for="(item, index) in types" v-bind:key="index" v-on:click="getTypeValues(item)">Get values for {{ item }}</button>
+        <div v-if="disp">
+          <div>
+            <select v-model="trace" multiple>
+              <option disabled value="">Select sensor(s) to graph</option>
+              <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.name }}+{{ item.sensor }}</option>
+            </select>
+            <select v-model="range">
+              <option disabled value="a">Select graph range</option>
+              <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
+            </select>
+            <select v-model="period" v-if="range == '24_hours'">
+              <option disabled value="">Select graph period in hours</option>
+              <option v-for="n in 24" v-bind:key="n">{{ n }}</option>
+            </select>
+            <select v-model="period" v-else-if="range == '7_days'">
+              <option disabled value="">Select graph period in days</option>
+              <option v-for="n in 7" v-bind:key="n">{{ n }}</option>
+            </select>
+            <select v-model="period" v-else-if="range == '2_months'">
+              <option disabled value="">Select graph period in days</option>
+              <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
+            </select>
+            <select v-model="period" v-else-if="range == '1_year'">
+              <option disabled value="">Select graph period in Months</option>
+              <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
+            </select>
+            <select v-model="period" v-else-if="range == '5_years'">
+              <option disabled value="">Select graph period in Years</option>
+              <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
+            </select>
+            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'site': values.site})">Make the graph</button>
+          </div>
+        </div>
+      </div>
+      <div v-if="selection == 'all'">
         <button v-for="(item, index) in allvals" v-bind:key="index" v-on:click="getAllValues()">Get values for {{ item }}</button>
         <div v-if="disp">
           <div>
             <select v-model="trace" multiple>
-            <!-- <div v-for="type in item.sensors" v-bind:key="type"> -->
               <option disabled value="">Select sensor(s) to graph</option>
               <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.site }}+{{ item.name }}+{{ item.sensor }}</option>
             </select>
@@ -102,19 +99,19 @@
               <option disabled value="">Select graph period in hours</option>
               <option v-for="n in 24" v-bind:key="n">{{ n }}</option>
             </select>
-            <select v-model="period" v-if="range == '7_days'">
+            <select v-model="period" v-else-if="range == '7_days'">
               <option disabled value="">Select graph period in days</option>
               <option v-for="n in 7" v-bind:key="n">{{ n }}</option>
             </select>
-            <select v-model="period" v-if="range == '2_months'">
+            <select v-model="period" v-else-if="range == '2_months'">
               <option disabled value="">Select graph period in days</option>
               <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
             </select>
-            <select v-model="period" v-if="range == '1_year'">
+            <select v-model="period" v-else-if="range == '1_year'">
               <option disabled value="">Select graph period in Months</option>
               <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
             </select>
-            <select v-model="period" v-if="range == '5_years'">
+            <select v-model="period" v-else-if="range == '5_years'">
               <option disabled value="">Select graph period in Years</option>
               <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
             </select>
@@ -125,7 +122,6 @@
     </div>
     <div class='content'>
       <vue-plotly :data="data" :layout="layout" :options="options"/>
-      <!-- <vue-plotly :data="data[1]" :layout="layout" :options="options"/> -->
     </div>
   </div>
 </template>

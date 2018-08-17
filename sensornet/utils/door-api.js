@@ -32,7 +32,7 @@ function getSensorDataTypes(type) {
 }
 
 function getSensorDataSites(site) {
-  const url = BASE_URL+'/data/values/site/'+site
+  const url = BASE_URL+'/data/values/'+site
   return simple_get(url)
 }
 
