@@ -17,11 +17,11 @@
         <div>
           <button v-on:click="getSiteValues(selsite)">Get values for site(s)</button>
         </div>
-        <div v-if="disp">
+        <div v-if="disp == 'site'">
           <div>
             <select v-model="trace" multiple>
               <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="(item, index) in sitevals.traces" v-bind:key="index" >{{ item.site }}+{{ item.type }}+{{ item.sensorID }}</option>
+              <option v-for="(item, index) in sitevals.traces" v-bind:key="index" >{{ item.type }}+{{ item.sensorID }}</option>
             </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
@@ -47,13 +47,17 @@
               <option disabled value="">Select graph period in Years</option>
               <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
             </select>
-            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'site': values.site})">Make the graph</button>
+            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'site': site})">Make the graph</button>
           </div>
         </div>
       </div>
-      <div v-if="selection == 'type'">
-        <button v-for="(item, index) in types" v-bind:key="index" v-on:click="getTypeValues(item)">Get values for {{ item }}</button>
-        <div v-if="disp">
+      <div v-if="selection == 'types'">
+        <select v-model="type">
+          <option disabled value="blah">Select type of sensors to graph</option>
+          <option v-for="(item, index) in types" v-bind:key="index" >{{ item }}</option>
+        </select>
+        <button v-on:click="getTypeValues(item)">Get type values</button>
+        <div v-if="disp == 'type'">
           <div>
             <select v-model="trace" multiple>
               <option disabled value="">Select sensor(s) to graph</option>
@@ -83,17 +87,17 @@
               <option disabled value="">Select graph period in Years</option>
               <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
             </select>
-            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'site': values.site})">Make the graph</button>
+            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'type': type})">Make the graph</button>
           </div>
         </div>
       </div>
       <div v-if="selection == 'all'">
         <button v-for="(item, index) in allvals" v-bind:key="index" v-on:click="getAllValues()">Get values for {{ item }}</button>
-        <div v-if="disp">
+        <div v-if="disp == 'all'">
           <div>
             <select v-model="trace" multiple>
               <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="(item, index) in AllValues.traces" v-bind:key="index" >{{ item.site }}+{{ item.name }}+{{ item.sensor }}</option>
+              <option v-for="(item, index) in AllValues.traces" v-bind:key="index" >{{ item.site }}+{{ item.type }}+{{ item.sensorID }}</option>
             </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
@@ -119,7 +123,7 @@
               <option disabled value="">Select graph period in Years</option>
               <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
             </select>
-            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'site': values.site})">Make the graph</button>
+            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period})">Make the graph</button>
           </div>
         </div>
       </div>
@@ -141,6 +145,8 @@ export default {
     return {
       trace: [],
       data: [],
+      site: '',
+      type: '',
       sites: [],
       selsite: '',
       values: [],
@@ -154,7 +160,7 @@ export default {
       timeRes: '',
       firstdata: {'measurement': [{'site': 'marcus', 'sensors':[{'id': 'lounge', 'type': 'temp'}]}], 'range':'temp_7_days', 'period': 1},
       test: {'marcus': 'mdawg', 'julian': 'jdawg'},
-      disp: false,
+      disp: '',
       selection: '',
       types: [],
       AllValues: [],
@@ -180,7 +186,8 @@ export default {
         // this.sensorIDs = ret.sensorIDs
         console.log(ret)
         this.sitevals = ret
-        this.disp = true
+        this.site = site
+        this.disp = 'site'
       })
     },
     getTypeValues (type) {
@@ -191,7 +198,7 @@ export default {
         // this.sensorIDs = ret.sensorIDs
         console.log(ret)
         this.values = ret
-        this.disp = true
+        this.disp = 'type'
       })
     },
     getAllValues () {
@@ -202,7 +209,7 @@ export default {
         // this.sensorIDs = ret.sensorIDs
         console.log(ret)
         this.values = ret
-        this.disp = true
+        this.disp = 'all'
       })
     },
     graphCust (payload) {
@@ -243,6 +250,7 @@ export default {
       getSensorDataTypes().then((ret) => {
         this.selection = 'types'
         this.types = ret
+        console.log(this.types)
       })
     },
     getAllList() {

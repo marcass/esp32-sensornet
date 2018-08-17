@@ -26,8 +26,8 @@ function simple_get(url) {
   });
 }
 
-function getSensorDataTypes(type) {
-  const url = BASE_URL+'/data/values/type/'+type
+function getSensorDataTypes() {
+  const url = BASE_URL+'/data/values/types'
   return simple_get(url)
 }
 
@@ -43,7 +43,7 @@ function getSensorDataAll() {
 }
 
 function getSites() {
-  const url = BASE_URL+'/data/values'
+  const url = BASE_URL+'/data/values/sites'
   return simple_get(url)
 }
 
