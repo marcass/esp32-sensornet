@@ -10,14 +10,18 @@
         <button v-on:click="getAllValues()">Get all values</button>
       </div>
       <div v-if="selection == 'sites'">
+        <select v-model="selsite">
+          <option disabled value="blah">Select sites to graph</option>
+          <option v-for="(item, index) in sites" v-bind:key="index" >{{ item }}</option>
+        </select>
         <div>
-          <button v-for="(item, index) in sites" v-bind:key="index" v-on:click="getSiteValues(item)">Get values for this site: {{ item }}</button>
+          <button v-on:click="getSiteValues(selsite)">Get values for site(s)</button>
         </div>
         <div v-if="disp">
           <div>
             <select v-model="trace" multiple>
               <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.name }}+{{ item.sensor }}</option>
+              <option v-for="(item, index) in sitevals.traces" v-bind:key="index" >{{ item.site }}+{{ item.type }}+{{ item.sensorID }}</option>
             </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
@@ -53,7 +57,7 @@
           <div>
             <select v-model="trace" multiple>
               <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.name }}+{{ item.sensor }}</option>
+              <option v-for="(item, index) in types" v-bind:key="index" >{{ item }}+{{ item }}</option>
             </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
@@ -89,7 +93,7 @@
           <div>
             <select v-model="trace" multiple>
               <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="(item, index) in values.traces" v-bind:key="index" >{{ item.site }}+{{ item.name }}+{{ item.sensor }}</option>
+              <option v-for="(item, index) in AllValues.traces" v-bind:key="index" >{{ item.site }}+{{ item.name }}+{{ item.sensor }}</option>
             </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
@@ -120,14 +124,14 @@
         </div>
       </div>
     </div>
-    <div class='content'>
+    <div class='content' v-if="graph">
       <vue-plotly :data="data" :layout="layout" :options="options"/>
     </div>
   </div>
 </template>
 
 <script>
-import { postStartData, getSensorDataSites, getSensorDataAll, getSensorDataTypes, postCustomData, getSites } from '../../../utils/door-api'
+import { postStartData, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomData, getSites } from '../../../utils/door-api'
 import AppNav from '../AppNav'
 import VuePlotly from '@statnett/vue-plotly'
 // import Plotly from 'plotly.js/dist/plotly'
@@ -138,27 +142,14 @@ export default {
       trace: [],
       data: [],
       sites: [],
+      selsite: '',
       values: [],
       period: 1,
       range: '',
       val: ['24_hours', '7_days', '2_months', '1_year', '5_years'],
       label: ['Hours', 'Days', 'Months', 'Year', 'Years'],
       graph_items: [],
-      // layout: {
-      //   'title': 'House data',
-      //   'yaxis': {'title': 'Temperature'},
-      //   'yaxis2': {'title': 'Percent', 'overlaying': 'y', 'side': 'right'}
-      // },
       layout: {},
-      // layout: {
-      //   'title': 'House data',
-      //   'yaxis': {'title': 'Temperature'},
-      //   'yaxis2': {'title': 'Light', 'overlaying': 'y', 'side': 'right'}
-      // },
-      // layout: {
-      //   'title': 'House data',
-      //   'yaxis': {'title': 'Temperature'},
-      // },
       options: {},
       timeRes: '',
       firstdata: {'measurement': [{'site': 'marcus', 'sensors':[{'id': 'lounge', 'type': 'temp'}]}], 'range':'temp_7_days', 'period': 1},
@@ -166,7 +157,9 @@ export default {
       disp: false,
       selection: '',
       types: [],
-      AllValues: {}
+      AllValues: [],
+      sitevals: [],
+      graph: false
     }
   },
   components: {
@@ -174,22 +167,19 @@ export default {
     VuePlotly
   },
   methods: {
-    loadedGraph () {
-      // console.log(payload)
-      postStartData(this.firstdata).then((ret) => {
-        // console.log(ret)
-        // this.data = ret.data
-        // console.log(this.data)
-        this.data = this.convTime(ret.data)
-      })
-    },
+    // loadedGraph () {
+    //   postStartData(this.firstdata).then((ret) => {
+    //     this.data = this.convTime(ret.data)
+    //   })
+    // },
     getSiteValues (site) {
-      getSensorDataSites(site).then((ret) => {
+      getSensorDataSite(site).then((ret) => {
         // {'traces': [{u'humidity': []}, {u'light': [u'lounge']}, {u'temp': [u'downhall', u'lounge', u'spare', u'window']}], 'site': u'marcus', 'types': [u'light', u'temp']}
         // this.datatypes = ret.types
         // this.locations = ret.measurements
         // this.sensorIDs = ret.sensorIDs
-        this.values = ret
+        console.log(ret)
+        this.sitevals = ret
         this.disp = true
       })
     },
@@ -199,6 +189,7 @@ export default {
         // this.datatypes = ret.types
         // this.locations = ret.measurements
         // this.sensorIDs = ret.sensorIDs
+        console.log(ret)
         this.values = ret
         this.disp = true
       })
@@ -209,6 +200,7 @@ export default {
         // this.datatypes = ret.types
         // this.locations = ret.measurements
         // this.sensorIDs = ret.sensorIDs
+        console.log(ret)
         this.values = ret
         this.disp = true
       })
@@ -219,6 +211,7 @@ export default {
         console.log(ret)
         this.layout = ret.data.layout
         this.data = this.convTime(ret.data.data)
+        this.graph = true
         // console.log(this.data)
       })
     },
@@ -247,7 +240,7 @@ export default {
       })
     },
     getTypeList() {
-      getTypes().then((ret) => {
+      getSensorDataTypes().then((ret) => {
         this.selection = 'types'
         this.types = ret
       })
@@ -260,8 +253,7 @@ export default {
     },
   },
   mounted () {
-    this.loadedGraph()
-    this.getSitesnow()
+    // this.getSitesnow()
   }
 }
 </script>
