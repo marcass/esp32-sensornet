@@ -53,15 +53,15 @@
       </div>
       <div v-if="selection == 'types'">
         <select v-model="type">
-          <option disabled value="blah">Select type of sensors to graph</option>
+          <option disabled value="">Select type of sensors to graph</option>
           <option v-for="(item, index) in types" v-bind:key="index" >{{ item }}</option>
         </select>
-        <button v-on:click="getTypeValues(item)">Get type values</button>
+        <button v-on:click="getTypeValues(type)">Get type values</button>
         <div v-if="disp == 'type'">
           <div>
             <select v-model="trace" multiple>
               <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="(item, index) in types" v-bind:key="index" >{{ item }}+{{ item }}</option>
+              <option v-for="(item, index) in typevals" v-bind:key="index" >{{ item.site }}+{{ item.sensorID }}</option>
             </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
@@ -92,12 +92,12 @@
         </div>
       </div>
       <div v-if="selection == 'all'">
-        <button v-for="(item, index) in allvals" v-bind:key="index" v-on:click="getAllValues()">Get values for {{ item }}</button>
+        <button v-on:click="getAllValues()">Get values</button>
         <div v-if="disp == 'all'">
           <div>
             <select v-model="trace" multiple>
               <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="(item, index) in AllValues.traces" v-bind:key="index" >{{ item.site }}+{{ item.type }}+{{ item.sensorID }}</option>
+              <option v-for="(item, index) in AllValues" v-bind:key="index" >{{ item.site }}+{{ item.type }}+{{ item.sensorID }}</option>
             </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
@@ -135,7 +135,7 @@
 </template>
 
 <script>
-import { postStartData, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomData, getSites } from '../../../utils/door-api'
+import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomData, getSites } from '../../../utils/door-api'
 import AppNav from '../AppNav'
 import VuePlotly from '@statnett/vue-plotly'
 // import Plotly from 'plotly.js/dist/plotly'
@@ -165,6 +165,7 @@ export default {
       types: [],
       AllValues: [],
       sitevals: [],
+      typevals: [],
       graph: false
     }
   },
@@ -173,18 +174,8 @@ export default {
     VuePlotly
   },
   methods: {
-    // loadedGraph () {
-    //   postStartData(this.firstdata).then((ret) => {
-    //     this.data = this.convTime(ret.data)
-    //   })
-    // },
     getSiteValues (site) {
       getSensorDataSite(site).then((ret) => {
-        // {'traces': [{u'humidity': []}, {u'light': [u'lounge']}, {u'temp': [u'downhall', u'lounge', u'spare', u'window']}], 'site': u'marcus', 'types': [u'light', u'temp']}
-        // this.datatypes = ret.types
-        // this.locations = ret.measurements
-        // this.sensorIDs = ret.sensorIDs
-        console.log(ret)
         this.sitevals = ret
         this.site = site
         this.disp = 'site'
@@ -192,34 +183,24 @@ export default {
     },
     getTypeValues (type) {
       getSensorDataTypes(type).then((ret) => {
-        // {'traces': [{u'humidity': []}, {u'light': [u'lounge']}, {u'temp': [u'downhall', u'lounge', u'spare', u'window']}], 'site': u'marcus', 'types': [u'light', u'temp']}
-        // this.datatypes = ret.types
-        // this.locations = ret.measurements
-        // this.sensorIDs = ret.sensorIDs
-        console.log(ret)
-        this.values = ret
+        this.typevals = ret
         this.disp = 'type'
       })
     },
     getAllValues () {
       getSensorDataAll().then((ret) => {
-        // {'traces': [{u'humidity': []}, {u'light': [u'lounge']}, {u'temp': [u'downhall', u'lounge', u'spare', u'window']}], 'site': u'marcus', 'types': [u'light', u'temp']}
-        // this.datatypes = ret.types
-        // this.locations = ret.measurements
-        // this.sensorIDs = ret.sensorIDs
         console.log(ret)
         this.values = ret
         this.disp = 'all'
       })
     },
     graphCust (payload) {
-      // console.log(payload)
+      console.log(payload)
       postCustomData(payload).then((ret) => {
         console.log(ret)
         this.layout = ret.data.layout
         this.data = this.convTime(ret.data.data)
         this.graph = true
-        // console.log(this.data)
       })
     },
     convTime (data) {
@@ -247,18 +228,18 @@ export default {
       })
     },
     getTypeList() {
-      getSensorDataTypes().then((ret) => {
+      getSensorTypes().then((ret) => {
         this.selection = 'types'
         this.types = ret
-        console.log(this.types)
       })
-    },
-    getAllList() {
-      getAllValues().then((ret) => {
-        this.selection = 'all'
-        this.AllValues = ret
-      })
-    },
+    }
+    // getAllList() {
+    //   getAllValues().then((ret) => {
+    //     this.selection = 'all'
+    //     this.AllValues = ret
+    //     console.log(ret)
+    //   })
+    // },
   },
   mounted () {
     // this.getSitesnow()
