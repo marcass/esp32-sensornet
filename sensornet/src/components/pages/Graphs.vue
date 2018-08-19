@@ -5,13 +5,15 @@
     </div>
     <div class='side'>
       <div>
+        Please select the type of values you want to graph
         <button v-on:click="getSiteList()">Get values by site</button>
         <button v-on:click="getTypeList()">Get values by measurement type</button>
         <button v-on:click="getAllValues()">Get all values</button>
       </div>
       <div v-if="selection == 'sites'">
+        Please select the site you want to graph from
         <select v-model="selsite">
-          <option disabled value="blah">Select sites to graph</option>
+          <option disabled value="">Select sites to graph</option>
           <option v-for="(item, index) in sites" v-bind:key="index" >{{ item }}</option>
         </select>
         <div>
@@ -21,7 +23,7 @@
           <div>
             <select v-model="trace" multiple>
               <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="(item, index) in sitevals.traces" v-bind:key="index" >{{ item.type }}+{{ item.sensorID }}</option>
+              <option v-for="(item, index) in sitevals" v-bind:key="index" >{{ item.type }}+{{ item.sensorID }}</option>
             </select>
             <select v-model="range">
               <option disabled value="a">Select graph range</option>
@@ -52,6 +54,7 @@
         </div>
       </div>
       <div v-if="selection == 'types'">
+        Please select the type of data you want to graph
         <select v-model="type">
           <option disabled value="">Select type of sensors to graph</option>
           <option v-for="(item, index) in types" v-bind:key="index" >{{ item }}</option>
@@ -91,45 +94,48 @@
           </div>
         </div>
       </div>
+      <!-- <div v-if="selection == 'all'"> -->
+        <!-- <button v-on:click="getAllValues()">Get values</button> -->
       <div v-if="selection == 'all'">
-        <button v-on:click="getAllValues()">Get values</button>
-        <div v-if="disp == 'all'">
-          <div>
-            <select v-model="trace" multiple>
-              <option disabled value="">Select sensor(s) to graph</option>
-              <option v-for="(item, index) in AllValues" v-bind:key="index" >{{ item.site }}+{{ item.type }}+{{ item.sensorID }}</option>
-            </select>
-            <select v-model="range">
-              <option disabled value="a">Select graph range</option>
-              <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
-            </select>
-            <select v-model="period" v-if="range == '24_hours'">
-              <option disabled value="">Select graph period in hours</option>
-              <option v-for="n in 24" v-bind:key="n">{{ n }}</option>
-            </select>
-            <select v-model="period" v-else-if="range == '7_days'">
-              <option disabled value="">Select graph period in days</option>
-              <option v-for="n in 7" v-bind:key="n">{{ n }}</option>
-            </select>
-            <select v-model="period" v-else-if="range == '2_months'">
-              <option disabled value="">Select graph period in days</option>
-              <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
-            </select>
-            <select v-model="period" v-else-if="range == '1_year'">
-              <option disabled value="">Select graph period in Months</option>
-              <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
-            </select>
-            <select v-model="period" v-else-if="range == '5_years'">
-              <option disabled value="">Select graph period in Years</option>
-              <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
-            </select>
-            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period})">Make the graph</button>
-          </div>
+        <div>
+          Please select the data you want to graph
+          <select v-model="trace" multiple>
+            <option disabled value="">Select sensor(s) to graph</option>
+            <option v-for="(item, index) in AllValues" v-bind:key="index" >{{ item.site }}+{{ item.type }}+{{ item.sensorID }}</option>
+          </select>
+          <select v-model="range">
+            <option disabled value="a">Select graph range</option>
+            <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
+          </select>
+          <select v-model="period" v-if="range == '24_hours'">
+            <option disabled value="">Select graph period in hours</option>
+            <option v-for="n in 24" v-bind:key="n">{{ n }}</option>
+          </select>
+          <select v-model="period" v-else-if="range == '7_days'">
+            <option disabled value="">Select graph period in days</option>
+            <option v-for="n in 7" v-bind:key="n">{{ n }}</option>
+          </select>
+          <select v-model="period" v-else-if="range == '2_months'">
+            <option disabled value="">Select graph period in days</option>
+            <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
+          </select>
+          <select v-model="period" v-else-if="range == '1_year'">
+            <option disabled value="">Select graph period in Months</option>
+            <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
+          </select>
+          <select v-model="period" v-else-if="range == '5_years'">
+            <option disabled value="">Select graph period in Years</option>
+            <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
+          </select>
+          <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period})">Make the graph</button>
         </div>
       </div>
+
     </div>
-    <div class='content' v-if="graph">
-      <vue-plotly :data="data" :layout="layout" :options="options"/>
+    <div class='content'>
+      <div v-if="graph">
+        <vue-plotly :data="data" :layout="layout" :options="options"/>
+      </div>
     </div>
   </div>
 </template>
@@ -189,15 +195,16 @@ export default {
     },
     getAllValues () {
       getSensorDataAll().then((ret) => {
-        console.log(ret)
-        this.values = ret
-        this.disp = 'all'
+        // console.log(ret)
+        this.AllValues = ret
+        this.selection = 'all'
+        this.disp = false
       })
     },
     graphCust (payload) {
-      console.log(payload)
+      // console.log(payload)
       postCustomData(payload).then((ret) => {
-        console.log(ret)
+        // console.log(ret)
         this.layout = ret.data.layout
         this.data = this.convTime(ret.data.data)
         this.graph = true
