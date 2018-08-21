@@ -17,16 +17,15 @@
  *  #define SERVER_443_auth "https://<auth route>"  
  */  
 
-
 #define debug
 #define dallas_temp
-#define light
+//#define light
 //#define DHTHum
 
 //Sleep stuff
 //https://github.com/espressif/arduino-esp32/blob/master/libraries/ESP32/examples/DeepSleep/TimerWakeUp/TimerWakeUp.ino
 #define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
-#define TIME_TO_SLEEP  30        /* Time ESP32 will go to sleep (in seconds) */
+#define TIME_TO_SLEEP  60        /* Time ESP32 will go to sleep (in seconds) */
 #ifdef debug
   RTC_DATA_ATTR int bootCount = 0; //counter in flash for boots
 #endif
@@ -282,15 +281,16 @@ void updateAPI(float val, String type) {
       String payload = http.getString();
       #ifdef debug
         Serial.println(payload);
-        Serial.println("Failed to post on reauth "+String(payload)
+        Serial.println("Failed to post on reauth "+String(payload));
       #endif
     }
   }else{
-    ifdef debug
+    #ifdef debug
       Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
     #endif
   }
   http.end();
+}
 
 //overload function for int
 void updateAPI(int val, String type) {
@@ -350,11 +350,11 @@ void updateAPI(int val, String type) {
       String payload = http.getString();
       #ifdef debug
         Serial.println(payload);
-        Serial.println("Failed to post on reauth "+String(payload)
+        Serial.println("Failed to post on reauth "+String(payload));
       #endif
     }
   }else{
-    ifdef debug
+    #ifdef debug
       Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
     #endif
   }
