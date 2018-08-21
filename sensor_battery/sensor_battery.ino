@@ -16,15 +16,20 @@
  *  #define SERVER_443_data "https://<url of api endpoint for data ingress>"
  *  #define SERVER_443_auth "https://<auth route>"  
  */  
-//Sleep stuff
-#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
-#define TIME_TO_SLEEP  30        /* Time ESP32 will go to sleep (in seconds) */
-RTC_DATA_ATTR int bootCount = 0;
+
 
 #define debug
 #define dallas_temp
 #define light
 //#define DHTHum
+
+//Sleep stuff
+//https://github.com/espressif/arduino-esp32/blob/master/libraries/ESP32/examples/DeepSleep/TimerWakeUp/TimerWakeUp.ino
+#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
+#define TIME_TO_SLEEP  30        /* Time ESP32 will go to sleep (in seconds) */
+#ifdef debug
+  RTC_DATA_ATTR int bootCount = 0; //counter in flash for boots
+#endif
 
 #ifdef dallas_temp
   #include <OneWire.h>
