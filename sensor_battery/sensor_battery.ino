@@ -16,7 +16,12 @@
  *  #define SERVER_443_data "https://<url of api endpoint for data ingress>"
  *  #define SERVER_443_auth "https://<auth route>"  
  */  
+//Sleep stuff
+#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
+#define TIME_TO_SLEEP  30        /* Time ESP32 will go to sleep (in seconds) */
+RTC_DATA_ATTR int bootCount = 0;
 
+#define debug
 #define dallas_temp
 #define light
 //#define DHTHum
@@ -85,25 +90,39 @@ int statusCode = 0;
 
 void connectWifi(){
   WiFi.begin (ssid, password);
-  Serial.print("Attempting to connect to Network named: ");
-  Serial.println(ssid);
+  #ifdef debug
+    Serial.print("Attempting to connect to Network named: ");
+    Serial.println(ssid);
+  #endif
   WiFi.mode(WIFI_STA);
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
+//    Serial.print(".");
     delay(500);
   }
 }
 
 void setup() {
-  Serial.begin(115200);
-  delay(2000);
+//  everything runs in setup for deep sleep
+  #ifdef debug
+    Serial.begin(115200);
+    delay(2000);
+    //Increment boot number and print it every reboot
+    ++bootCount;
+    Serial.println("Boot number: " + String(bootCount));
+  #endif
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  #ifdef debug
+    Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) +" Seconds");
+  #endif
   connectWifi();
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-  // print your WiFi shield's IP address:
-  IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
+  #ifdef debug
+    Serial.print("SSID: ");
+    Serial.println(WiFi.SSID());
+    // print your WiFi shield's IP address:
+    IPAddress ip = WiFi.localIP();
+    Serial.print("IP Address: ");
+    Serial.println(ip);
+  #endif
   Token = getAuth();
 
   #ifdef dallas_temp
@@ -114,6 +133,24 @@ void setup() {
   #ifdef DHTHum
     dht.setup(H_PIN, DHTesp::DHT22);
   #endif
+  
+  #ifdef dallas_temp
+    float thisTemp = temp();
+    updateAPI(thisTemp, "temp");
+  #endif
+  
+  #ifdef DHTHum
+    float hum = dht.getHumidity(); 
+    updateAPI(hum, "humidity");
+    float thisTemp = dht.getTemperature();
+    updateAPI(thisTemp, "temp");
+  #endif
+  
+  #ifdef light
+    updateAPI(analogRead(PhotocellPin), "light");
+  #endif
+  esp_deep_sleep_start();
+  //nothing happens past here as it restarts
 }
 
 String getAuth() {
@@ -130,19 +167,21 @@ String getAuth() {
   creds.printTo(input);
 //  Serial.println(input);
   int httpCode = http.POST(input);
-  // httpCode will be negative on error
-  if(httpCode > 0) {
-    // HTTP header has been send and Server response header has been handled
-    Serial.print("HTTP code = ");
-    Serial.println(httpCode);
-    // file found at server
-    if(httpCode == HTTP_CODE_OK) {
-        payload = http.getString();
-        Serial.println(payload);
+  #ifdef debug
+    // httpCode will be negative on error
+    if(httpCode > 0) {
+      // HTTP header has been send and Server response header has been handled
+      Serial.print("HTTP code = ");
+      Serial.println(httpCode);
+      // file found at server
+      if(httpCode == HTTP_CODE_OK) {
+          payload = http.getString();
+          Serial.println(payload);
+      }
+    }else{
+      Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
     }
-  }else{
-    Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
-  }
+  #endif
   http.end();;
 //  parse jwt here
 //https://github.com/bblanchon/ArduinoJson
@@ -150,20 +189,26 @@ String getAuth() {
   char json[len];
   payload.toCharArray(json, len);
   JsonObject& root = jsonBuffer.parseObject(json);
-  if (!root.success()) {
-    Serial.println("parseObject() failed");
-  }
+  #ifdef debug
+    if (!root.success()) {
+      Serial.println("parseObject() failed");
+    }
+  #endif
   const char* jwt_token = root["access_token"];
-  Serial.println(jwt_token);
+//  Serial.println(jwt_token);
 //  return String(jwt_token);
   return "Bearer "+ String(jwt_token);
 }
 
 #ifdef dallas_temp
   float temp() {
-    Serial.print("Measuing temp...");
+    #ifdef debug
+      Serial.print("Measuing temp...");
+    #endif
     sensors.requestTemperatures(); // Send the command to get temperatures
-    Serial.println("DONE");
+    #ifdef debug
+      Serial.println("DONE");    
+    #endif
     // Why "byIndex"?
     // You can have more than one IC on the same bus.
     // 0 refers to the first IC on the wire
@@ -180,18 +225,22 @@ void updateAPI(float val, String type) {
 //  DynamicJsonBuffer  jsonBuffer(500);
   StaticJsonBuffer<500> jsonBuffer;
   //build json object
-  Serial.print("SensorID is ");
-  Serial.println(sensorID);
-  Serial.print(type +" is ");
-  Serial.println(val);
+  #ifdef debug
+    Serial.print("SensorID is ");
+    Serial.println(sensorID);
+    Serial.print(type +" is ");
+    Serial.println(val);
+  #endif
   JsonObject& root = jsonBuffer.createObject();
   root["type"] = type;
   root["group"] = SITE;
   root["value"] = float(val);
   root["sensor"] = sensorID;
-  root.printTo(Serial);
-  Serial.println();
-  Serial.println("making POST request");
+  #ifdef debug
+    root.printTo(Serial);
+    Serial.println();
+    Serial.println("making POST request");
+  #endif
   http.begin(SERVER_443_data, root_ca);
   http.addHeader("Authorization", Token);
   http.addHeader("Content-Type", "application/json");
@@ -201,8 +250,10 @@ void updateAPI(float val, String type) {
   // httpCode will be negative on error
   if(httpCode > 0) {
     // HTTP header has been send and Server response header has been handled
-    Serial.print("HTTP code = ");
-    Serial.println(httpCode);
+    #ifdef debug
+      Serial.print("HTTP code = ");
+      Serial.println(httpCode);
+    #endif
     if(httpCode == 401){
       http.end();
       //token expired so get a new one
@@ -218,18 +269,23 @@ void updateAPI(float val, String type) {
     // successful post
     if(httpCode == HTTP_CODE_OK) {
         String payload = http.getString();
-        Serial.println(payload);
+        #ifdef debug
+          Serial.println(payload);
+        #endif
     }else{
       //terminal so do nothing
       String payload = http.getString();
-      Serial.println(payload);
-      Serial.println("Failed to post on reauth "+String(payload)
+      #ifdef debug
+        Serial.println(payload);
+        Serial.println("Failed to post on reauth "+String(payload)
+      #endif
     }
   }else{
-    Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    ifdef debug
+      Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    #endif
   }
   http.end();
-}
 
 //overload function for int
 void updateAPI(int val, String type) {
@@ -237,18 +293,22 @@ void updateAPI(int val, String type) {
 //  DynamicJsonBuffer  jsonBuffer(500);
   StaticJsonBuffer<500> jsonBuffer;
   //build json object
-  Serial.print("SensorID is ");
-  Serial.println(sensorID);
-  Serial.print(type +" is ");
-  Serial.println(val);
+  #ifdef debug
+    Serial.print("SensorID is ");
+    Serial.println(sensorID);
+    Serial.print(type +" is ");
+    Serial.println(val);
+  #endif
   JsonObject& root = jsonBuffer.createObject();
   root["type"] = type;
   root["group"] = SITE;
   root["value"] = int(val);
   root["sensor"] = sensorID;
-  root.printTo(Serial);
-  Serial.println();
-  Serial.println("making POST request");
+   #ifdef debug
+    root.printTo(Serial);
+    Serial.println();
+    Serial.println("making POST request");
+  #endif
   http.begin(SERVER_443_data, root_ca);
   http.addHeader("Authorization", Token);
   http.addHeader("Content-Type", "application/json");
@@ -258,8 +318,10 @@ void updateAPI(int val, String type) {
   // httpCode will be negative on error
   if(httpCode > 0) {
     // HTTP header has been send and Server response header has been handled
-    Serial.print("HTTP code = ");
-    Serial.println(httpCode);
+    #ifdef debug
+      Serial.print("HTTP code = ");
+      Serial.println(httpCode);
+    #endif
     if(httpCode == 401){
       http.end();
       //token expired so get a new one
@@ -275,35 +337,25 @@ void updateAPI(int val, String type) {
     // successful post
     if(httpCode == HTTP_CODE_OK) {
         String payload = http.getString();
-        Serial.println(payload);
+        #ifdef debug
+          Serial.println(payload);
+        #endif
     }else{
       //terminal so do nothing
       String payload = http.getString();
-      Serial.println(payload);
-      Serial.println("Failed to post on reauth "+String(payload)
+      #ifdef debug
+        Serial.println(payload);
+        Serial.println("Failed to post on reauth "+String(payload)
+      #endif
     }
   }else{
-    Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    ifdef debug
+      Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    #endif
   }
   http.end();
 }
 
 void loop() {
-  #ifdef dallas_temp
-    float thisTemp = temp();
-    updateAPI(thisTemp, "temp");
-  #endif
-  
-  #ifdef DHTHum
-    float hum = dht.getHumidity(); 
-    updateAPI(hum, "humidity");
-    float thisTemp = dht.getTemperature();
-    updateAPI(thisTemp, "temp");
-  #endif
-  
-  #ifdef light
-    updateAPI(analogRead(PhotocellPin), "light");
-  #endif
-  
-  delay(10000);
+//nothign runs in here
 }
