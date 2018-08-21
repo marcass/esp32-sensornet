@@ -4,7 +4,7 @@
       <app-nav></app-nav>
     </div>
     <div class='side'>
-      <div>
+      <div v-if="buttons">
         Please select the type of values you want to graph
         <button v-on:click="getSiteList()">Get values by site</button>
         <button v-on:click="getTypeList()">Get values by measurement type</button>
@@ -135,6 +135,7 @@
     <div class='content'>
       <div v-if="graph">
         <vue-plotly :data="data" :layout="layout" :options="options"/>
+        <button v-on:click="startAgain()">Make a new graph</button>
       </div>
     </div>
   </div>
@@ -172,7 +173,8 @@ export default {
       AllValues: [],
       sitevals: [],
       typevals: [],
-      graph: false
+      graph: false,
+      buttons: true
     }
   },
   components: {
@@ -180,6 +182,13 @@ export default {
     VuePlotly
   },
   methods: {
+    startAgain () {
+      this.buttons = true
+      this.disp = ''
+      this.graph = false
+      this.selection = ''
+
+    },
     getSiteValues (site) {
       getSensorDataSite(site).then((ret) => {
         this.sitevals = ret
@@ -199,6 +208,7 @@ export default {
         this.AllValues = ret
         this.selection = 'all'
         this.disp = false
+        this.buttons = false
       })
     },
     graphCust (payload) {
@@ -208,6 +218,8 @@ export default {
         this.layout = ret.data.layout
         this.data = this.convTime(ret.data.data)
         this.graph = true
+        this.disp = ''
+        this.selection = ''
       })
     },
     convTime (data) {
@@ -232,21 +244,16 @@ export default {
         // this.sensorIDs = ret.sensorIDs
         this.selection = 'sites'
         this.sites = ret
+        this.buttons = false
       })
     },
     getTypeList() {
       getSensorTypes().then((ret) => {
         this.selection = 'types'
         this.types = ret
+        this.buttons = false
       })
     }
-    // getAllList() {
-    //   getAllValues().then((ret) => {
-    //     this.selection = 'all'
-    //     this.AllValues = ret
-    //     console.log(ret)
-    //   })
-    // },
   },
   mounted () {
     // this.getSitesnow()
