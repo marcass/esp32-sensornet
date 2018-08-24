@@ -1,0 +1,293 @@
+<template>
+  <div class='wrapper'>
+    <div class='main-head'>
+      <app-nav></app-nav>
+    </div>
+    <div class='content'>
+      <div>
+        Please select the site you want to graph from
+        <select v-model="selsite">
+          <option disabled value="">Select sites to graph</option>
+          <option v-for="(item, index) in sites" v-bind:key="index" >{{ item }}</option>
+        </select>
+        <div>
+          <button v-on:click="getSiteValues(selsite)">Get values for site(s)</button>
+        </div>
+        <div v-if="disp == 'site'">
+          <div v-for="(item, index) in sitevals" :key="index">
+            <drag class="drag" :class="{ [item]: true }" :transfer-data="{ item:item, key:index }">
+              {{ item.type }}+{{ item.sensorID }}
+            </drag>
+          </div>
+
+          <!-- <div v-model="trace" v-for="(item, index) in sitevals" v-bind:key="index">
+            <drag class="drag" :transfer-data="{ item }">{{ item.type }}+{{ item.sensorID }}</drag>
+          </div>
+          <drop class="drop" @drop="handleDrop">Dropzone</drop> -->
+          <select name="axes" id="axes" v-model="axes" @change="buildAxes(axes)">
+            <option disabled value="">How many y-axes do you want?</option>
+            <option v-for="n in 3" v-bind:key="n">{{ n }}</option>
+          </select>
+          <div v-if="axes == 1">
+            <drop class="drop list" @drop="handleDrop(y1, ...arguments)">
+              Drag and drop items you want to graph in y-axis1 here:
+              {{ y1 }}
+            </drop>
+          </div>
+          <div v-if="axes == 2">
+            <drop class="drop list" @drop="handleDrop(y1, ...arguments)">
+              Drag and drop items you want to graph in y-axis1 here:
+              {{ y1 }}
+            </drop>
+            <drop class="drop list" @drop="handleDrop(y2, ...arguments)">
+              Drag and drop items you want to graph in y-axis2 here:
+              {{ y2 }}
+            </drop>
+          </div>
+          <div v-if="axes == 3">
+            <drop class="drop list" @drop="handleDrop(y1, ...arguments)">
+              Drag and drop items you want to graph in y-axis1 here:
+              {{ y1 }}
+            </drop>
+            <drop class="drop list" @drop="handleDrop(y2, ...arguments)">
+              Drag and drop items you want to graph in y-axis2 here:
+              {{ y2 }}
+            </drop>
+            <drop class="drop list" @drop="handleDrop(y3, ...arguments)">
+              Drag and drop items you want to graph in y-axis3 here:
+              {{ y3 }}
+            </drop>
+          </div>
+          <br>
+          <select v-model="range">
+            <option disabled value="">Select graph range</option>
+            <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
+          </select>
+          <select v-model="period" v-if="range == '24_hours'">
+            <option disabled value="">Select graph period in hours</option>
+            <option v-for="n in 24" v-bind:key="n">{{ n }}</option>
+          </select>
+          <select v-model="period" v-else-if="range == '7_days'">
+            <option disabled value="">Select graph period in days</option>
+            <option v-for="n in 7" v-bind:key="n">{{ n }}</option>
+          </select>
+          <select v-model="period" v-else-if="range == '2_months'">
+            <option disabled value="">Select graph period in days</option>
+            <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
+          </select>
+          <select v-model="period" v-else-if="range == '1_year'">
+            <option disabled value="">Select graph period in Months</option>
+            <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
+          </select>
+          <select v-model="period" v-else-if="range == '5_years'">
+            <option disabled value="">Select graph period in Years</option>
+            <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
+          </select>
+          <button v-on:click="graphCust({'traces':traces, 'range':range, 'period':period, 'site': site})">Make the graph</button>
+        </div>
+      </div>
+    </div>
+    <div class='content'>
+      <div v-if="graph">
+        <vue-plotly :data="data" :layout="layout" :options="options"/>
+        <button v-on:click="startAgain()">Make a new graph</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomAx, getSites } from '../../../utils/api'
+import AppNav from '../AppNav'
+import VueDragDrop from 'vue-drag-drop'
+import VuePlotly from '@statnett/vue-plotly'
+import Vue from 'vue'
+Vue.use(VueDragDrop)
+// import Plotly from 'plotly.js/dist/plotly'
+export default {
+  name: 'graphs',
+  data () {
+    return {
+      axes: 0,
+      traces: [],
+      y1: [],
+      y2: [],
+      y3: [],
+      data: [],
+      site: '',
+      type: '',
+      sites: [],
+      selsite: '',
+      values: [],
+      period: 1,
+      range: '',
+      val: ['24_hours', '7_days', '2_months', '1_year', '5_years'],
+      label: ['Hours', 'Days', 'Months', 'Year', 'Years'],
+      graph_items: [],
+      layout: {},
+      options: {},
+      timeRes: '',
+      disp: '',
+      selection: '',
+      types: [],
+      AllValues: [],
+      sitevals: [],
+      typevals: [],
+      graph: false,
+      buttons: true,
+      axis1: [],
+      axis2: [],
+      axis3: []
+    }
+  },
+  components: {
+    AppNav,
+    VuePlotly,
+    VueDragDrop
+  },
+  methods: {
+    buildAxes (axes) {
+      this.axes = axes
+    },
+    handleDrop (toList, data) {
+      console.log(data)
+			const fromList = this.sitevals;
+			if (fromList) {
+				toList.push(data.item)
+        console.log(this.toList)
+        fromList.splice(data.key, 1)
+      }
+    },
+    startAgain () {
+      this.buttons = true
+      this.disp = ''
+      this.graph = false
+      this.selection = ''
+
+    },
+    getSiteValues (site) {
+      getSensorDataSite(site).then((ret) => {
+        this.sitevals = ret
+        this.site = site
+        this.disp = 'site'
+      })
+    },
+    getTypeValues (type) {
+      getSensorDataTypes(type).then((ret) => {
+        this.typevals = ret
+        this.disp = 'type'
+      })
+    },
+    getAllValues () {
+      getSensorDataAll().then((ret) => {
+        // console.log(ret)
+        this.AllValues = ret
+        this.selection = 'all'
+        this.disp = false
+        this.buttons = false
+      })
+    },
+    graphCust (payload) {
+      for (i in this.y1) {
+        i.push({
+          key: "yaxis",
+          value: "y"
+        })
+      }
+      traces.push(this.y1)
+      if (this.y2 != []) {
+        for (i in this.y2) {
+          i.push({
+            key: "yaxis",
+            value: "y2"
+          })
+        }
+        traces.push(this.y2)
+      }
+      if (this.y3 != []) {
+        for (i in this.y3) {
+          i.push({
+            key: "yaxis",
+            value: "y3"
+          })
+        }
+        traces.push(this.y3)
+      }
+      // console.log(payload)
+      postCustomAx(payload).then((ret) => {
+        // console.log(ret)
+        this.layout = ret.data.layout
+        this.data = this.convTime(ret.data.data)
+        this.graph = true
+        this.disp = ''
+        this.selection = ''
+      })
+    },
+    convTime (data) {
+      var i
+      for (i in data) {
+        var arr = data[i].x
+        // eslint-disable-next-line
+        var dates = function (element, index, arr) {
+          element = new Date(element)
+          return element
+        }
+        const result = arr.map(dates)
+        data[i].x = result
+      }
+      // console.log(data)
+      return data
+    },
+    getSiteList () {
+      getSites().then((ret) => {
+        // this.datatypes = ret.types
+        // this.locations = ret.measurements
+        // this.sensorIDs = ret.sensorIDs
+        this.selection = 'sites'
+        this.sites = ret
+        this.buttons = false
+      })
+    },
+    getTypeList() {
+      getSensorTypes().then((ret) => {
+        this.selection = 'types'
+        this.types = ret
+        this.buttons = false
+      })
+    }
+  },
+  mounted () {
+    this.getSiteList()
+    // this.getSitesnow()
+  }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+.drag,
+.drop {
+  font-family: sans-serif;
+  display: inline-block;
+  border-radius: 10px;
+  background: #ccc;
+  position: relative;
+  padding: 30px;
+  text-align: center;
+  vertical-align: top;
+}
+
+.drag {
+  color: #fff;
+  cursor: move;
+  background: #777;
+  border-right: 2px solid #555;
+  border-bottom: 2px solid #555;
+}
+
+.drop {
+  background: #eee;
+  border-top: 2px solid #ccc;
+  border-left: 2px solid #ccc;
+}
+</style>

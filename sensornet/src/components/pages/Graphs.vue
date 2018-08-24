@@ -142,7 +142,7 @@
 </template>
 
 <script>
-import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomData, getSites } from '../../../utils/door-api'
+import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomData, getSites } from '../../../utils/api'
 import AppNav from '../AppNav'
 import VuePlotly from '@statnett/vue-plotly'
 // import Plotly from 'plotly.js/dist/plotly'

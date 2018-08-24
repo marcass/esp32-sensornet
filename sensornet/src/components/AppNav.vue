@@ -30,6 +30,7 @@ export default {
       {text: 'GraphingTheThings',
         children: [
           {text: 'Logout'},
+          {text: 'CustomGraph'},
           {text: 'Users',
             children: [
               {text: 'UserUpdate'}

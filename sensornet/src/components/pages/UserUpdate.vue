@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { putUserData, getUser, getVerifyUser } from '../../../utils/door-api'
+import { putUserData, getUser, getVerifyUser } from '../../../utils/api'
 import AppNav from '../AppNav'
 export default {
   name: 'userupdate',

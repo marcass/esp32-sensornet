@@ -7,6 +7,7 @@ import Three from '@/components/pages/403'
 import Four from '@/components/pages/404'
 import Logout from '@/components/pages/Logout'
 import Graphs from '@/components/pages/Graphs'
+import CustomGraph from '@/components/pages/CustomGraph'
 
 // Vue.router = Router
 Vue.use(Router)
@@ -35,6 +36,12 @@ export default new Router({
       path: '/graphs',
       name: 'Graphs',
       component: Graphs,
+      meta: {auth: true}
+    },
+    {
+      path: '/customgraphs',
+      name: 'CustomGraph',
+      component: CustomGraph,
       meta: {auth: true}
     },
     {

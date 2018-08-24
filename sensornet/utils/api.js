@@ -17,7 +17,7 @@ axios.defaults.headers.delete['Content-Type'] = 'application/json';
 //     console.log('RES', res);
 // });
 
-export { getSensorTypes, postStartData, getSites, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomData, getUser, getVerifyUser, putUserData };
+export { getUser, getSensorTypes, postStartData, postCustomAx, getSites, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomData, getVerifyUser, putUserData };
 
 function simple_get(url) {
   return axios.get(url)
@@ -58,6 +58,12 @@ function postCustomData(payload) {
   return axios.post(url, payload);
 }
 
+function postCustomAx(payload) {
+  // console.log(payload)
+  const url = BASE_URL+'/data/values/customAx'
+  return axios.post(url, payload);
+}
+
 function postStartData(payload) {
   // console.log(payload)
   const url = BASE_URL+'/data/values'
@@ -81,6 +87,8 @@ function putUserData(payload, route) {
   const url = BASE_URL+'/user/'
   return axios.put(url+route, payload);
 }
+
+
 // function delDoor(door) {
 //   const url = BASE_URL+'/door/'
 //   // console.log(user)
