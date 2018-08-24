@@ -18,7 +18,7 @@
  */  
 
 #define dallas_temp
-#define light
+//#define light
 //#define DHTHum
 
 #ifdef dallas_temp
@@ -223,7 +223,7 @@ void updateAPI(float val, String type) {
       //terminal so do nothing
       String payload = http.getString();
       Serial.println(payload);
-      Serial.println("Failed to post on reauth "+String(payload)
+      Serial.println("Failed to post on reauth "+String(payload));
     }
   }else{
     Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
@@ -280,7 +280,7 @@ void updateAPI(int val, String type) {
       //terminal so do nothing
       String payload = http.getString();
       Serial.println(payload);
-      Serial.println("Failed to post on reauth "+String(payload)
+      Serial.println("Failed to post on reauth "+String(payload));
     }
   }else{
     Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());

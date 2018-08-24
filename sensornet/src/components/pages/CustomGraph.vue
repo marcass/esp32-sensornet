@@ -6,13 +6,13 @@
     <div class='content'>
       <div>
         Please select the site you want to graph from
-        <select v-model="selsite">
+        <select v-model="selsite" @change="getSiteValues(selsite)">
           <option disabled value="">Select sites to graph</option>
           <option v-for="(item, index) in sites" v-bind:key="index" >{{ item }}</option>
         </select>
-        <div>
+        <!-- <div>
           <button v-on:click="getSiteValues(selsite)">Get values for site(s)</button>
-        </div>
+        </div> -->
         <div v-if="disp == 'site'">
           <div v-for="(item, index) in sitevals" :key="index">
             <drag class="drag" :class="{ [item]: true }" :transfer-data="{ item:item, key:index }">
@@ -29,33 +29,33 @@
             <option v-for="n in 3" v-bind:key="n">{{ n }}</option>
           </select>
           <div v-if="axes == 1">
-            <drop class="drop list" @drop="handleDrop(y1, ...arguments)">
+            <drop class="drop list" @drop="handleDrop(y1.members, ...arguments)">
               Drag and drop items you want to graph in y-axis1 here:
-              {{ y1 }}
+              {{ y1.members }}
             </drop>
           </div>
           <div v-if="axes == 2">
-            <drop class="drop list" @drop="handleDrop(y1, ...arguments)">
+            <drop class="drop list" @drop="handleDrop(y1.members, ...arguments)">
               Drag and drop items you want to graph in y-axis1 here:
-              {{ y1 }}
+              {{ y1.members }}
             </drop>
-            <drop class="drop list" @drop="handleDrop(y2, ...arguments)">
+            <drop class="drop list" @drop="handleDrop(y2.members, ...arguments)">
               Drag and drop items you want to graph in y-axis2 here:
-              {{ y2 }}
+              {{ y2.members }}
             </drop>
           </div>
           <div v-if="axes == 3">
-            <drop class="drop list" @drop="handleDrop(y1, ...arguments)">
+            <drop class="drop list" @drop="handleDrop(y1.members, ...arguments)">
               Drag and drop items you want to graph in y-axis1 here:
-              {{ y1 }}
+              {{ y1.members }}
             </drop>
-            <drop class="drop list" @drop="handleDrop(y2, ...arguments)">
+            <drop class="drop list" @drop="handleDrop(y2.members, ...arguments)">
               Drag and drop items you want to graph in y-axis2 here:
-              {{ y2 }}
+              {{ y2.members }}
             </drop>
-            <drop class="drop list" @drop="handleDrop(y3, ...arguments)">
+            <drop class="drop list" @drop="handleDrop(y3.members, ...arguments)">
               Drag and drop items you want to graph in y-axis3 here:
-              {{ y3 }}
+              {{ y3.members }}
             </drop>
           </div>
           <br>
@@ -110,9 +110,9 @@ export default {
     return {
       axes: 0,
       traces: [],
-      y1: [],
-      y2: [],
-      y3: [],
+      y1: {'yaxis': 'y', 'members': []},
+      y2: {'yaxis': 'y2', 'members': []},
+      y3: {'yaxis': 'y3', 'members': []},
       data: [],
       site: '',
       type: '',
@@ -150,11 +150,9 @@ export default {
       this.axes = axes
     },
     handleDrop (toList, data) {
-      console.log(data)
 			const fromList = this.sitevals;
 			if (fromList) {
 				toList.push(data.item)
-        console.log(this.toList)
         fromList.splice(data.key, 1)
       }
     },
@@ -163,7 +161,11 @@ export default {
       this.disp = ''
       this.graph = false
       this.selection = ''
-
+      this.selsite = ''
+      this.y1 = {'yaxis': 'y', 'members': []}
+      this.y2 = {'yaxis': 'y2', 'members': []}
+      this.y3 = {'yaxis': 'y3', 'members': []}
+      this.axes = 0
     },
     getSiteValues (site) {
       getSensorDataSite(site).then((ret) => {
@@ -188,34 +190,10 @@ export default {
       })
     },
     graphCust (payload) {
-      for (i in this.y1) {
-        i.push({
-          key: "yaxis",
-          value: "y"
-        })
-      }
-      traces.push(this.y1)
-      if (this.y2 != []) {
-        for (i in this.y2) {
-          i.push({
-            key: "yaxis",
-            value: "y2"
-          })
-        }
-        traces.push(this.y2)
-      }
-      if (this.y3 != []) {
-        for (i in this.y3) {
-          i.push({
-            key: "yaxis",
-            value: "y3"
-          })
-        }
-        traces.push(this.y3)
-      }
-      // console.log(payload)
+      payload.traces.push(this.y1)
+      payload.traces.push(this.y2)
+      payload.traces.push(this.y3)
       postCustomAx(payload).then((ret) => {
-        // console.log(ret)
         this.layout = ret.data.layout
         this.data = this.convTime(ret.data.data)
         this.graph = true
@@ -235,14 +213,10 @@ export default {
         const result = arr.map(dates)
         data[i].x = result
       }
-      // console.log(data)
       return data
     },
     getSiteList () {
       getSites().then((ret) => {
-        // this.datatypes = ret.types
-        // this.locations = ret.measurements
-        // this.sensorIDs = ret.sensorIDs
         this.selection = 'sites'
         this.sites = ret
         this.buttons = false
@@ -258,7 +232,6 @@ export default {
   },
   mounted () {
     this.getSiteList()
-    // this.getSitesnow()
   }
 }
 </script>
