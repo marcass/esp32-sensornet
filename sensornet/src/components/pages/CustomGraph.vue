@@ -10,52 +10,56 @@
           <option disabled value="">Select sites to graph</option>
           <option v-for="(item, index) in sites" v-bind:key="index" >{{ item }}</option>
         </select>
-        <!-- <div>
-          <button v-on:click="getSiteValues(selsite)">Get values for site(s)</button>
-        </div> -->
         <div v-if="disp == 'site'">
           <div v-for="(item, index) in sitevals" :key="index">
             <drag class="drag" :class="{ [item]: true }" :transfer-data="{ item:item, key:index }">
               {{ item.type }}+{{ item.sensorID }}
             </drag>
           </div>
-
-          <!-- <div v-model="trace" v-for="(item, index) in sitevals" v-bind:key="index">
-            <drag class="drag" :transfer-data="{ item }">{{ item.type }}+{{ item.sensorID }}</drag>
-          </div>
-          <drop class="drop" @drop="handleDrop">Dropzone</drop> -->
           <select name="axes" id="axes" v-model="axes" @change="buildAxes(axes)">
             <option disabled value="">How many y-axes do you want?</option>
             <option v-for="n in 3" v-bind:key="n">{{ n }}</option>
           </select>
           <div v-if="axes == 1">
-            <drop class="drop list" @drop="handleDrop(y1.members, ...arguments)">
-              Drag and drop items you want to graph in y-axis1 here:
-              {{ y1.members }}
+            <drop class="drop list" @drop="handleDrop(y1.members, axis1, ...arguments)">
+              Drag and drop items you want to graph in y-axis1 here:<br>
+              <div class="drag" v-for="item in axis1" v-bind:key="item">
+                {{item}}
+              </div>
             </drop>
           </div>
           <div v-if="axes == 2">
-            <drop class="drop list" @drop="handleDrop(y1.members, ...arguments)">
-              Drag and drop items you want to graph in y-axis1 here:
-              {{ y1.members }}
+            <drop class="drop list" @drop="handleDrop(y1.members, axis1, ...arguments)">
+              Drag and drop items you want to graph in y-axis1 here:<br>
+              <div class="drag" v-for="item in axis1" v-bind:key="item">
+                {{item}}
+              </div>
             </drop>
-            <drop class="drop list" @drop="handleDrop(y2.members, ...arguments)">
-              Drag and drop items you want to graph in y-axis2 here:
-              {{ y2.members }}
+            <drop class="drop list" @drop="handleDrop(y2.members, axis2, ...arguments)">
+              Drag and drop items you want to graph in y-axis2 here:<br>
+              <div class="drag" v-for="item in axis2" v-bind:key="item">
+                {{item}}
+              </div>
             </drop>
           </div>
           <div v-if="axes == 3">
-            <drop class="drop list" @drop="handleDrop(y1.members, ...arguments)">
-              Drag and drop items you want to graph in y-axis1 here:
-              {{ y1.members }}
+            <drop class="drop list" @drop="handleDrop(y1.members, axis1, ...arguments)">
+              Drag and drop items you want to graph in y-axis1 here:<br>
+              <div class="drag" v-for="item in axis1" v-bind:key="item">
+                {{item}}
+              </div>
             </drop>
-            <drop class="drop list" @drop="handleDrop(y2.members, ...arguments)">
-              Drag and drop items you want to graph in y-axis2 here:
-              {{ y2.members }}
+            <drop class="drop list" @drop="handleDrop(y2.members, axis2, ...arguments)">
+              Drag and drop items you want to graph in y-axis2 here:<br>
+              <div class="drag" v-for="item in axis2" v-bind:key="item">
+                {{item}}
+              </div>
             </drop>
-            <drop class="drop list" @drop="handleDrop(y3.members, ...arguments)">
-              Drag and drop items you want to graph in y-axis3 here:
-              {{ y3.members }}
+            <drop class="drop list" @drop="handleDrop(y3.members, axis3, ...arguments)">
+              Drag and drop items you want to graph in y-axis2 here:<br>
+              <div class="drag" v-for="item in axis3" v-bind:key="item">
+                {{item}}
+              </div>
             </drop>
           </div>
           <br>
@@ -108,7 +112,7 @@ export default {
   name: 'graphs',
   data () {
     return {
-      axes: 0,
+      axes: -1,
       traces: [],
       y1: {'yaxis': 'y', 'members': []},
       y2: {'yaxis': 'y2', 'members': []},
@@ -149,11 +153,13 @@ export default {
     buildAxes (axes) {
       this.axes = axes
     },
-    handleDrop (toList, data) {
+    handleDrop (toList, dispList, data) {
 			const fromList = this.sitevals;
 			if (fromList) {
 				toList.push(data.item)
         fromList.splice(data.key, 1)
+        dispList.push(data.item.type+'+'+data.item.sensorID)
+        // dispList.push(data.item.type)
       }
     },
     startAgain () {

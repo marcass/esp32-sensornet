@@ -3,7 +3,7 @@
     <div class='main-head'>
       <app-nav></app-nav>
     </div>
-    <div class='side'>
+    <div class='content'>
       <div v-if="buttons">
         Please select the type of values you want to graph
         <button v-on:click="getSiteList()">Get values by site</button>
@@ -12,13 +12,10 @@
       </div>
       <div v-if="selection == 'sites'">
         Please select the site you want to graph from
-        <select v-model="selsite">
+        <select v-model="selsite" @change="getSiteValues(selsite)">
           <option disabled value="">Select sites to graph</option>
           <option v-for="(item, index) in sites" v-bind:key="index" >{{ item }}</option>
         </select>
-        <div>
-          <button v-on:click="getSiteValues(selsite)">Get values for site(s)</button>
-        </div>
         <div v-if="disp == 'site'">
           <div>
             <select v-model="trace" multiple>
@@ -26,7 +23,7 @@
               <option v-for="(item, index) in sitevals" v-bind:key="index" >{{ item.type }}+{{ item.sensorID }}</option>
             </select>
             <select v-model="range">
-              <option disabled value="a">Select graph range</option>
+              <option disabled value="">Select graph range</option>
               <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
             </select>
             <select v-model="period" v-if="range == '24_hours'">
@@ -55,11 +52,10 @@
       </div>
       <div v-if="selection == 'types'">
         Please select the type of data you want to graph
-        <select v-model="type">
+        <select v-model="type" @change="getTypeValues(type)">
           <option disabled value="">Select type of sensors to graph</option>
           <option v-for="(item, index) in types" v-bind:key="index" >{{ item }}</option>
         </select>
-        <button v-on:click="getTypeValues(type)">Get type values</button>
         <div v-if="disp == 'type'">
           <div>
             <select v-model="trace" multiple>
