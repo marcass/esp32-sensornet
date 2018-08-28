@@ -1,28 +1,29 @@
 <template>
   <div class="doors">
     <app-nav></app-nav>
-    <h1>Update keycode for {{ this.username }}</h1>
-    <div class="col-lg-7">
+    <h1>Update password for {{ this.username }}</h1>
+    <div class="content">
       <ul>
         <li>
-          Keycode: <input v-model="keycode" :placeholder="this.keycode">
+          Old password: <input type="password" v-model="password">
         </li>
         <li>
-          Password: <input type="password" v-model="password">
+          New password: <input type="password" v-model="password1">
+          Confirm new password: <input type="password" v-model="password2">
         </li>
         <li>
-          <button v-on:click="passwordCheck(password, keycode)">Submit</button>
+          <button v-on:click="passwordCheck(password, password1, password2)">Submit</button>
         </li>
       </ul>
    </div>
    <div v-if="this.resp != ''">
-     {{ this.resp.data.Message }}
+     {{ this.resp.Message }}
    </div>
   </div>
 </template>
 
 <script>
-import { putUserData, getUser, getVerifyUser } from '../../../utils/api'
+import { getVerifyUser, updatePass } from '../../../utils/api'
 import AppNav from '../AppNav'
 export default {
   name: 'userupdate',
@@ -32,41 +33,38 @@ export default {
       keycode: '',
       username: '',
       status: 'Pending',
-      verified: '',
+      verified: {},
       password: '',
-      resp: ''
+      resp: '',
+      password1: '',
+      password2: ''
     }
   },
   components: {
     AppNav
   },
   methods: {
-    changepin (payload) {
-      putUserData(JSON.stringify(payload), 'keycode').then((ret) => {
-        this.resp = ret
-      })
-    },
-
-    getUserKey () {
-      getUser(this.$auth.user().username).then((ret) => {
-        this.keycode = ret.keycode
-      })
-    },
-    passwordCheck (pass, key) {
+    passwordCheck (pass, pass1, pass2) {
       getVerifyUser(this.username, {'password': pass}).then((ret) => {
-      // getVerifyUser(this.$auth.user().username, password).then((ret) => {
         this.verified = ret
         if (this.verified.status === 'passed') {
-          this.changepin({'username': this.username, 'keycode': key})
+          if (pass1 === pass2) {
+            updatePass({'username': this.username, 'password': pass1})
+            this.resp = {'Status': 'Success', 'Message': 'Password updated'}
+          } else {
+            this.resp = {'Status': 'Error', 'Message': 'Passwords do not match, please re-enter new password'}
+          }
         } else {
-          this.resp = {'data': {'Status': 'Error', 'Message': 'Password check failed'}}
+          this.resp = {'Status': 'Error', 'Message': 'Password check failed'}
         }
+        this.password1 = ''
+        this.password2 = ''
+        this.password = ''
         // console.log(this.resp)
       })
     }
   },
   mounted () {
-    this.getUserKey()
     this.username = this.$auth.user().username
   }
 }

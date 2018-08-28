@@ -31,10 +31,7 @@ export default {
         children: [
           {text: 'Logout'},
           {text: 'CustomGraph'},
-          {text: 'Users',
-            children: [
-              {text: 'UserUpdate'}
-            ]
+          {text: 'UpdatePassword',
           }
         ]
       }

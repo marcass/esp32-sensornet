@@ -24,14 +24,7 @@ export default new Router({
       path: '/',
       name: 'Login',
       component: Login
-      // meta: {auth: false}
     },
-    // {
-    //   path: '/',
-    //   name: 'Hello',
-    //   component: Hello
-    //   // meta: {auth: false}
-    // },
     {
       path: '/graphs',
       name: 'Graphs',
@@ -46,10 +39,9 @@ export default new Router({
     },
     {
       path: '/userupdate',
-      name: 'UserUpdate',
+      name: 'UpdatePassword',
       component: Userupdate,
-      meta: {auth: ['admin', 'user']}
-      // meta: {auth: true}
+      meta: {auth: ['admin', 'sensuser']}
     },
     {
       path: '/403',
