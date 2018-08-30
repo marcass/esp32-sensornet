@@ -17,9 +17,9 @@ axios.defaults.headers.delete['Content-Type'] = 'application/json';
 //     console.log('RES', res);
 // });
 
-export { getUser, getSensorTypes, postStartData, postCustomAx,
+export { getSensorTypes, postStartData, postCustomAx,
    getSites, getSensorDataSite, getSensorDataAll, getSensorDataTypes,
-   postCustomData, getVerifyUser, putUserData, updatePass };
+   postCustomData, getVerifyUser, updatePass };
 
 function simple_get(url) {
   return axios.get(url)
@@ -72,26 +72,16 @@ function postStartData(payload) {
   return axios.post(url, payload);
 }
 
-function getUser(user) {
-  const url = BASE_URL+'/user/data/'+user
-  return simple_get(url)
-}
-
 function getVerifyUser(user, payload) {
-  const url = BASE_URL+'/door/auth/user/'
+  const url = BASE_URL+'/auth/user/'
   return axios.post(url+user, payload)
   .then(function (response) {
       return response.data
   });
 }
 
-function putUserData(payload, route) {
-  const url = BASE_URL+'/user/'
-  return axios.put(url+route, payload);
-}
-
 function updatePass(payload) {
-  const url = BASE_URL+'/door/user/password'
+  const url = BASE_URL+'/auth/user/password'
   return axios.put(url, payload);
 }
 
