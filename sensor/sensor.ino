@@ -14,8 +14,8 @@
  *  String API_user = "";
  *  String API_pass = "";
  *  #define SERVER_443_data "https://<url of api endpoint for data ingress>"
- *  #define SERVER_443_auth "https://<auth route>"  
- */  
+ *  #define SERVER_443_auth "https://<auth route>"
+ */
 
 #define dallas_temp
 //#define light
@@ -110,7 +110,7 @@ void setup() {
     // Start up the temperature measurement library
     sensors.begin();
   #endif
-  
+
   #ifdef DHTHum
     dht.setup(H_PIN, DHTesp::DHT22);
   #endif
@@ -185,10 +185,11 @@ void updateAPI(float val, String type) {
   Serial.print(type +" is ");
   Serial.println(val);
   JsonObject& root = jsonBuffer.createObject();
-  root["type"] = type;
-  root["group"] = SITE;
+  root["measurement"] = "things";
+  root["tags"]["type"] = type;
+  root["tags"]["site"] = SITE;
   root["value"] = float(val);
-  root["sensor"] = sensorID;
+  root["tags"]["sensorID"] = sensorID;
   root.printTo(Serial);
   Serial.println();
   Serial.println("making POST request");
@@ -293,17 +294,17 @@ void loop() {
     float thisTemp = temp();
     updateAPI(thisTemp, "temp");
   #endif
-  
+
   #ifdef DHTHum
-    float hum = dht.getHumidity(); 
+    float hum = dht.getHumidity();
     updateAPI(hum, "humidity");
     float thisTemp = dht.getTemperature();
     updateAPI(thisTemp, "temp");
   #endif
-  
+
   #ifdef light
     updateAPI(analogRead(PhotocellPin), "light");
   #endif
-  
+
   delay(10000);
 }
