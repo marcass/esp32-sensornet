@@ -27,7 +27,7 @@ export default new Router({
     },
     {
       path: '/graphs',
-      name: 'Graphs',
+      name: 'GraphingTheThings',
       component: Graphs,
       meta: {auth: true}
     },
