@@ -8,7 +8,7 @@
         Please select the site you want to graph from
         <select v-model="selsite" @change="getSiteValues(selsite)">
           <option disabled value="">Select sites to graph</option>
-          <option v-for="(item, index) in sites" v-bind:key="index" >{{ item }}</option>
+          <option v-for="(item, index) in sites" v-bind:key="index" >{{ item.sitename }}</option>
         </select>
         <div v-if="disp == 'site'">
           <div v-for="(item, index) in sitevals" :key="index">
@@ -165,7 +165,8 @@ export default {
       buttons: true,
       axis1: [],
       axis2: [],
-      axis3: []
+      axis3: [],
+      measurement: ''
     }
   },
   components: {
@@ -194,6 +195,13 @@ export default {
       this.axes = 0
     },
     getSiteValues (site) {
+      var ind
+      for (var x in this.sites) {
+        if (site == this.sites[x].sitename) {
+          ind = x
+        }
+      }
+      this.measurement = this.sites[ind].measurement
       getSensorDataSite(site).then((ret) => {
         this.sitevals = ret
         this.site = site
