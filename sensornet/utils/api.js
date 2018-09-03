@@ -19,7 +19,7 @@ axios.defaults.headers.delete['Content-Type'] = 'application/json';
 
 export { getSensorTypes, postStartData, postCustomAx,
    getSites, getSensorDataSite, getSensorDataAll, getSensorDataTypes,
-   postCustomData, getVerifyUser, updatePass };
+   postCustomData, getVerifyUser, updatePass, getSensorDataSiteMeas };
 
 function simple_get(url) {
   return axios.get(url)
@@ -41,6 +41,12 @@ function getSensorDataTypes(type) {
 function getSensorDataSite(site) {
   // console.log(site)
   const url = BASE_URL+'/data/values/site/'+site
+  return simple_get(url)
+}
+
+function getSensorDataSiteMeas(site, meas) {
+  // console.log(site)
+  const url = BASE_URL+'/data/values/site/'+meas+'/'+site
   return simple_get(url)
 }
 

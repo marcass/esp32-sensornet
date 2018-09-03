@@ -108,7 +108,7 @@
             <option disabled value="">Select graph period in Years</option>
             <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
           </select>
-          <button v-on:click="graphCust({'traces':traces, 'range':range, 'period':period, 'site': site})">Make the graph</button>
+          <button v-on:click="graphCust({'traces':traces, 'range':range, 'period':period, 'site': site, 'measurement': measurement})">Make the graph</button>
         </div>
       </div>
     </div>
@@ -122,7 +122,8 @@
 </template>
 
 <script>
-import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomAx, getSites } from '../../../utils/api'
+import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes,
+  postCustomAx, getSites, getSensorDataSiteMeas } from '../../../utils/api'
 import AppNav from '../AppNav'
 import VueDragDrop from 'vue-drag-drop'
 import VuePlotly from '@statnett/vue-plotly'
@@ -202,7 +203,7 @@ export default {
         }
       }
       this.measurement = this.sites[ind].measurement
-      getSensorDataSite(site).then((ret) => {
+      getSensorDataSiteMeas(site, this.measurement).then((ret) => {
         this.sitevals = ret
         this.site = site
         this.disp = 'site'
@@ -216,7 +217,6 @@ export default {
     },
     getAllValues () {
       getSensorDataAll().then((ret) => {
-        // console.log(ret)
         this.AllValues = ret
         this.selection = 'all'
         this.disp = false
