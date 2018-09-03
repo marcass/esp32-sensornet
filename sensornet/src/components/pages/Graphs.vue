@@ -46,7 +46,7 @@
               <option disabled value="">Select graph period in Years</option>
               <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
             </select>
-            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'site': site})">Make the graph</button>
+            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'site': site, 'measurement': measurement})">Make the graph</button>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@
               <option disabled value="">Select graph period in Years</option>
               <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
             </select>
-            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'type': type})">Make the graph</button>
+            <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'measurement': measurement})">Make the graph</button>
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@
             <option disabled value="">Select graph period in Years</option>
             <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
           </select>
-          <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period})">Make the graph</button>
+          <button v-on:click="graphCust({'traces':trace, 'range':range, 'period':period, 'measurement': measurement})">Make the graph</button>
         </div>
       </div>
 
@@ -138,7 +138,8 @@
 </template>
 
 <script>
-import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes, postCustomData, getSites } from '../../../utils/api'
+import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes,
+  postCustomData, getSites, getSensorDataSiteMeas } from '../../../utils/api'
 import AppNav from '../AppNav'
 import VuePlotly from '@statnett/vue-plotly'
 // import Plotly from 'plotly.js/dist/plotly'
@@ -194,7 +195,7 @@ export default {
         }
       }
       this.measurement = this.sites[ind].measurement
-      getSensorDataSite(site).then((ret) => {
+      getSensorDataSiteMeas(site, this.measurement).then((ret) => {
         this.sitevals = ret
         this.site = site
         this.disp = 'site'
@@ -216,7 +217,6 @@ export default {
       })
     },
     graphCust (payload) {
-      // console.log(payload)
       postCustomData(payload).then((ret) => {
         // console.log(ret)
         this.layout = ret.data.layout
