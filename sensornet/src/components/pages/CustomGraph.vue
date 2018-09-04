@@ -4,112 +4,112 @@
       <app-nav></app-nav>
     </div>
     <div class='content'>
-      <div>
+      <div v-if="disp == ''">
         Please select the site you want to graph from
         <select v-model="selsite" @change="getSiteValues(selsite)">
           <option disabled value="">Select sites to graph</option>
           <option v-for="(item, index) in sites" v-bind:key="index" >{{ item.sitename }}</option>
         </select>
-        <div v-if="disp == 'site'">
-          <div v-for="(item, index) in sitevals" :key="index">
-            <div class="trace">
-              <drag class="drag" :class="{ [item]: true }" :transfer-data="{ item:item, key:index }">
-                {{ item.type }}+{{ item.sensorID }}
-              </drag>
-            </div>
+      </div>
+      <div v-if="disp == 'site'">
+        <div v-for="(item, index) in sitevals" :key="index">
+          <div class="trace">
+            <drag class="drag" :class="{ [item]: true }" :transfer-data="{ item:item, key:index }">
+              {{ item.type }}+{{ item.sensorID }}
+            </drag>
           </div>
-          <div class="axis">
-            <br>
-            <div>
-              How many y-axes do you want?
-              <select name="axes" id="axes" v-model="axes" @change="buildAxes(axes)">
-                <!-- <option disabled value="">How many y-axes do you want?</option> -->
-                <option v-for="n in 3" v-bind:key="n">{{ n }}</option>
-              </select>
-              <br>
-            </div>
-            <div v-if="axes == 1">
-              <drop class="drop list" @drop="handleDrop(y1.members, axis1, ...arguments)">
-                Drag and drop items you want to graph in y-axis1 here<br>
-                <div class="drag" v-for="item in axis1" v-bind:key="item">
-                  {{item}}
-                </div>
-                <br>
-                <input v-model="y1.label" placeholder="Axis label (leave blank for None)">
-              </drop>
-            </div>
-            <div v-if="axes == 2">
-              <drop class="drop list" @drop="handleDrop(y1.members, axis1, ...arguments)">
-                Drag and drop items you want to graph in y-axis1 here<br>
-                <div class="drag" v-for="item in axis1" v-bind:key="item">
-                  {{item}}
-                </div>
-                <br>
-                <input v-model="y1.label" placeholder="Axis label (leave blank for None)">
-              </drop>
-              <drop class="drop list" @drop="handleDrop(y2.members, axis2, ...arguments)">
-                Drag and drop items you want to graph in y-axis2 here<br>
-                <div class="drag" v-for="item in axis2" v-bind:key="item">
-                  {{item}}
-                </div>
-                <br>
-                <input v-model="y2.label" placeholder="Axis label (leave blank for None)">
-              </drop>
-            </div>
-            <div v-if="axes == 3">
-              <drop class="drop list" @drop="handleDrop(y1.members, axis1, ...arguments)">
-                Drag and drop items you want to graph in y-axis1 here<br>
-                <div class="drag" v-for="item in axis1" v-bind:key="item">
-                  {{item}}
-                </div>
-                <br>
-                <input v-model="y1.label" placeholder="Axis label (leave blank for None)">
-              </drop>
-              <drop class="drop list" @drop="handleDrop(y2.members, axis2, ...arguments)">
-                Drag and drop items you want to graph in y-axis2 here<br>
-                <div class="drag" v-for="item in axis2" v-bind:key="item">
-                  {{item}}
-                </div>
-                <br>
-                <input v-model="y2.label" placeholder="Axis label (leave blank for None)">
-              </drop>
-              <drop class="drop list" @drop="handleDrop(y3.members, axis3, ...arguments)">
-                Drag and drop items you want to graph in y-axis2 here<br>
-                <div class="drag" v-for="item in axis3" v-bind:key="item">
-                  {{item}}
-                </div>
-                <br>
-                <input v-model="y3.label" placeholder="Axis label (leave blank for None)">
-              </drop>
-            </div>
-          </div>
-          <br>
-          <select v-model="range">
-            <option disabled value="">Select graph range</option>
-            <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
-          </select>
-          <select v-model="period" v-if="range == '24_hours'">
-            <option disabled value="">Select graph period in hours</option>
-            <option v-for="n in 24" v-bind:key="n">{{ n }}</option>
-          </select>
-          <select v-model="period" v-else-if="range == '7_days'">
-            <option disabled value="">Select graph period in days</option>
-            <option v-for="n in 7" v-bind:key="n">{{ n }}</option>
-          </select>
-          <select v-model="period" v-else-if="range == '2_months'">
-            <option disabled value="">Select graph period in days</option>
-            <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
-          </select>
-          <select v-model="period" v-else-if="range == '1_year'">
-            <option disabled value="">Select graph period in months</option>
-            <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
-          </select>
-          <select v-model="period" v-else-if="range == 'forever'">
-            <option disabled value="">Select graph period in Years</option>
-            <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
-          </select>
-          <button v-on:click="graphCust({'traces':traces, 'range':range, 'period':period, 'site': site, 'measurement': measurement})">Make the graph</button>
         </div>
+        <div class="axis">
+          <br>
+          <div>
+            How many y-axes do you want?
+            <select name="axes" id="axes" v-model="axes" @change="buildAxes(axes)">
+              <!-- <option disabled value="">How many y-axes do you want?</option> -->
+              <option v-for="n in 3" v-bind:key="n">{{ n }}</option>
+            </select>
+            <br>
+          </div>
+          <div v-if="axes == 1">
+            <drop class="drop list" @drop="handleDrop(y1.members, axis1, ...arguments)">
+              Drag and drop items you want to graph in y-axis1 here<br>
+              <div class="drag" v-for="item in axis1" v-bind:key="item">
+                {{item}}
+              </div>
+              <br>
+              <input v-model="y1.label" placeholder="Axis label (leave blank for None)">
+            </drop>
+          </div>
+          <div v-if="axes == 2">
+            <drop class="drop list" @drop="handleDrop(y1.members, axis1, ...arguments)">
+              Drag and drop items you want to graph in y-axis1 here<br>
+              <div class="drag" v-for="item in axis1" v-bind:key="item">
+                {{item}}
+              </div>
+              <br>
+              <input v-model="y1.label" placeholder="Axis label (leave blank for None)">
+            </drop>
+            <drop class="drop list" @drop="handleDrop(y2.members, axis2, ...arguments)">
+              Drag and drop items you want to graph in y-axis2 here<br>
+              <div class="drag" v-for="item in axis2" v-bind:key="item">
+                {{item}}
+              </div>
+              <br>
+              <input v-model="y2.label" placeholder="Axis label (leave blank for None)">
+            </drop>
+          </div>
+          <div v-if="axes == 3">
+            <drop class="drop list" @drop="handleDrop(y1.members, axis1, ...arguments)">
+              Drag and drop items you want to graph in y-axis1 here<br>
+              <div class="drag" v-for="item in axis1" v-bind:key="item">
+                {{item}}
+              </div>
+              <br>
+              <input v-model="y1.label" placeholder="Axis label (leave blank for None)">
+            </drop>
+            <drop class="drop list" @drop="handleDrop(y2.members, axis2, ...arguments)">
+              Drag and drop items you want to graph in y-axis2 here<br>
+              <div class="drag" v-for="item in axis2" v-bind:key="item">
+                {{item}}
+              </div>
+              <br>
+              <input v-model="y2.label" placeholder="Axis label (leave blank for None)">
+            </drop>
+            <drop class="drop list" @drop="handleDrop(y3.members, axis3, ...arguments)">
+              Drag and drop items you want to graph in y-axis2 here<br>
+              <div class="drag" v-for="item in axis3" v-bind:key="item">
+                {{item}}
+              </div>
+              <br>
+              <input v-model="y3.label" placeholder="Axis label (leave blank for None)">
+            </drop>
+          </div>
+        </div>
+        <br>
+        <select v-model="range">
+          <option disabled value="">Select graph range</option>
+          <option v-for="(item, index) in label" :value="val[index]" v-bind:key="item">{{ item }}</option>
+        </select>
+        <select v-model="period" v-if="range == '24_hours'">
+          <option disabled value="">Select graph period in hours</option>
+          <option v-for="n in 24" v-bind:key="n">{{ n }}</option>
+        </select>
+        <select v-model="period" v-else-if="range == '7_days'">
+          <option disabled value="">Select graph period in days</option>
+          <option v-for="n in 7" v-bind:key="n">{{ n }}</option>
+        </select>
+        <select v-model="period" v-else-if="range == '2_months'">
+          <option disabled value="">Select graph period in days</option>
+          <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
+        </select>
+        <select v-model="period" v-else-if="range == '1_year'">
+          <option disabled value="">Select graph period in months</option>
+          <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
+        </select>
+        <select v-model="period" v-else-if="range == 'forever'">
+          <option disabled value="">Select graph period in Years</option>
+          <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
+        </select>
+        <button v-on:click="graphCust({'traces':traces, 'range':range, 'period':period, 'site': site, 'measurement': measurement})">Make the graph</button>
       </div>
     </div>
     <div class='content'>
@@ -263,6 +263,19 @@ export default {
         this.buttons = false
       })
     },
+    getSiteStart () {
+        getSites().then((ret) => {
+        this.sites = ret
+        if (this.sites.length < 2) {
+          getSensorDataSiteMeas(this.sites[0].sitename, this.sites[0].measurement).then((ret) => {
+            this.sitevals = ret
+            this.site = this.sites[0].sitename
+            this.disp = 'site'
+            this.buttons = false
+          })
+        }
+      })
+    },
     getTypeList() {
       getSensorTypes().then((ret) => {
         this.selection = 'types'
@@ -273,6 +286,7 @@ export default {
   },
   mounted () {
     this.getSiteList()
+    this.getSiteStart()
   }
 }
 </script>
