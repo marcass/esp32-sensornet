@@ -138,7 +138,7 @@
 </template>
 
 <script>
-import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes,
+import { getSensorTypes, getSensorDataAll, getSensorDataTypes,
   postCustomData, getSites, getSensorDataSiteMeas } from '../../../utils/api'
 import AppNav from '../AppNav'
 import VuePlotly from '@statnett/vue-plotly'
@@ -156,14 +156,13 @@ export default {
       values: [],
       period: 1,
       range: '',
-      val: ['24_hours', '7_days', '2_months', '1_year', '5_years'],
+      val: ['24_hours', '7_days', '2_months', '1_year', 'forever'],
       label: ['Hours', 'Days', 'Months', 'Year', 'Years'],
       graph_items: [],
       layout: {},
       options: {},
       timeRes: '',
       firstdata: {'measurement': [{'site': 'marcus', 'sensors':[{'id': 'lounge', 'type': 'temp'}]}], 'range':'temp_7_days', 'period': 1},
-      test: {'marcus': 'mdawg', 'julian': 'jdawg'},
       disp: '',
       selection: '',
       types: [],

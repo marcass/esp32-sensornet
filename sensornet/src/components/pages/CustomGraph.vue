@@ -101,10 +101,10 @@
             <option v-for="n in 60" v-bind:key="n">{{ n }}</option>
           </select>
           <select v-model="period" v-else-if="range == '1_year'">
-            <option disabled value="">Select graph period in Months</option>
+            <option disabled value="">Select graph period in months</option>
             <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
           </select>
-          <select v-model="period" v-else-if="range == '5_years'">
+          <select v-model="period" v-else-if="range == 'forever'">
             <option disabled value="">Select graph period in Years</option>
             <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
           </select>
@@ -122,7 +122,7 @@
 </template>
 
 <script>
-import { getSensorTypes, getSensorDataSite, getSensorDataAll, getSensorDataTypes,
+import { getSensorTypes, getSensorDataAll, getSensorDataTypes,
   postCustomAx, getSites, getSensorDataSiteMeas } from '../../../utils/api'
 import AppNav from '../AppNav'
 import VueDragDrop from 'vue-drag-drop'
@@ -150,7 +150,7 @@ export default {
       values: [],
       period: 1,
       range: '',
-      val: ['24_hours', '7_days', '2_months', '1_year', '5_years'],
+      val: ['24_hours', '7_days', '2_months', '1_year', 'forever'],
       label: ['Hours', 'Days', 'Months', 'Year', 'Years'],
       graph_items: [],
       layout: {},
