@@ -267,7 +267,8 @@ export default {
         getSites().then((ret) => {
         this.sites = ret
         if (this.sites.length < 2) {
-          getSensorDataSiteMeas(this.sites[0].sitename, this.sites[0].measurement).then((ret) => {
+          this.measurement = this.sites[0].measurement
+          getSensorDataSiteMeas(this.sites[0].sitename, this.measurement).then((ret) => {
             this.sitevals = ret
             this.site = this.sites[0].sitename
             this.disp = 'site'
