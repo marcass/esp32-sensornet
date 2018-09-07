@@ -43,7 +43,7 @@
             <option disabled value="">Select graph period in Months</option>
             <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
           </select>
-          <select v-model="period" v-else-if="range == '5_years'">
+          <select v-model="period" v-else-if="range == 'forever'">
             <option disabled value="">Select graph period in Years</option>
             <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
           </select>
@@ -82,7 +82,7 @@
               <option disabled value="">Select graph period in Months</option>
               <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
             </select>
-            <select v-model="period" v-else-if="range == '5_years'">
+            <select v-model="period" v-else-if="range == 'forever'">
               <option disabled value="">Select graph period in Years</option>
               <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
             </select>
@@ -119,7 +119,7 @@
             <option disabled value="">Select graph period in Months</option>
             <option v-for="n in 12" v-bind:key="n">{{ n }}</option>
           </select>
-          <select v-model="period" v-else-if="range == '5_years'">
+          <select v-model="period" v-else-if="range == 'forever'">
             <option disabled value="">Select graph period in Years</option>
             <option v-for="n in 5" v-bind:key="n">{{ n }}</option>
           </select>
