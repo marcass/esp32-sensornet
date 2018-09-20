@@ -17,9 +17,9 @@
  *  #define SERVER_443_auth "https://<auth route>"
  */
 
-#define dallas_temp
+//#define dallas_temp
 //#define light
-//#define DHTHum
+#define DHTHum
 
 #ifdef dallas_temp
   #include <OneWire.h>
@@ -35,7 +35,7 @@
 
 #ifdef DHTHum
  #include "DHTesp.h"
- #define H_PIN 22
+ #define H_PIN 15
  DHTesp dht;
 #endif
 
@@ -185,11 +185,12 @@ void updateAPI(float val, String type) {
   Serial.print(type +" is ");
   Serial.println(val);
   JsonObject& root = jsonBuffer.createObject();
+  JsonObject& tags = root.createNestedObject("tags");
   root["measurement"] = "things";
-  root["tags"]["type"] = type;
-  root["tags"]["site"] = SITE;
+  tags["type"] = type;
+  tags["site"] = SITE;
   root["value"] = float(val);
-  root["tags"]["sensorID"] = sensorID;
+  tags["sensorID"] = sensorID;
   root.printTo(Serial);
   Serial.println();
   Serial.println("making POST request");
@@ -243,10 +244,12 @@ void updateAPI(int val, String type) {
   Serial.print(type +" is ");
   Serial.println(val);
   JsonObject& root = jsonBuffer.createObject();
-  root["type"] = type;
-  root["group"] = SITE;
+  JsonObject& tags = root.createNestedObject("tags");
+  root["measurement"] = "things";
+  tags["type"] = type;
+  tags["site"] = SITE;
   root["value"] = int(val);
-  root["sensor"] = sensorID;
+  tags["sensorID"] = sensorID;
   root.printTo(Serial);
   Serial.println();
   Serial.println("making POST request");
