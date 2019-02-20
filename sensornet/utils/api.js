@@ -7,6 +7,7 @@ import Vue from 'vue'
 Vue.use(VueAxios, axios)
 
 const BASE_URL = 'https://skibo.duckdns.org/api';
+const AUTH_URL = 'https://skibo.duckdns.org/auth'
 Vue.axios.defaults.baseURL = BASE_URL;
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.put['Content-Type'] = 'application/json';
@@ -19,7 +20,24 @@ axios.defaults.headers.delete['Content-Type'] = 'application/json';
 
 export { getSensorTypes, postStartData, postCustomAx,
    getSites, getSensorDataSite, getSensorDataAll, getSensorDataTypes,
-   postCustomData, getVerifyUser, updatePass, getSensorDataSiteMeas };
+   postCustomData, getVerifyUser, updatePass, getSensorDataSiteMeas, LoginRoutine };
+
+// ?make this a fucnbtion
+ const LoginRoutine = user => new Promise ((resolve, reject) => {
+   axios({url: AUTH_URL, data: user, method: 'POST' })
+     .then(resp => {
+       const token = resp.data.token
+       localStorage.setItem('user-token', token) // store the token in localstorage
+       localStorage.setItem('user', user)
+       resolve(resp)
+       return
+     })
+   .catch(err => {
+     localStorage.removeItem('user-token') // if the request fails, remove any possible user token if possible
+     localStorage.removeItem('user')
+     reject(err)
+   })
+ })
 
 function simple_get(url) {
   return axios.get(url)
