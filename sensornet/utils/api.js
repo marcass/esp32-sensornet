@@ -20,24 +20,27 @@ axios.defaults.headers.delete['Content-Type'] = 'application/json';
 
 export { getSensorTypes, postStartData, postCustomAx,
    getSites, getSensorDataSite, getSensorDataAll, getSensorDataTypes,
-   postCustomData, getVerifyUser, updatePass, getSensorDataSiteMeas, LoginRoutine };
+   postCustomData, getVerifyUser, updatePass, getSensorDataSiteMeas, Login };
 
-// ?make this a fucnbtion
+// can decode with https://www.npmjs.com/package/vue-jwt-decode
+// then get the expiration and test for a time near that so that a request can be made for a refresh token
+// this can then be sent for a new token to api
+function Login () {
  const LoginRoutine = user => new Promise ((resolve, reject) => {
-   axios({url: AUTH_URL, data: user, method: 'POST' })
+   axios.post(AUTH_URL, user)
      .then(resp => {
        const token = resp.data.token
-       localStorage.setItem('user-token', token) // store the token in localstorage
-       localStorage.setItem('user', user)
+       localStorage.setItem('jwt-token', token) // store the token in localstorage
+       localStorage.setItem('user', user.username)
        resolve(resp)
-       return
      })
    .catch(err => {
-     localStorage.removeItem('user-token') // if the request fails, remove any possible user token if possible
+     localStorage.removeItem('jwt-token') // if the request fails, remove any possible user token if possible
      localStorage.removeItem('user')
      reject(err)
    })
  })
+}
 
 function simple_get(url) {
   return axios.get(url)

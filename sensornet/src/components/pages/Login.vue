@@ -37,11 +37,17 @@ export default {
   methods: {
    login: function () {
      const { username, password } = this
-     LoginRoutine({ username, password }).then(() => {
-       this.$router.push('/')
+     LoginRoutine({'username': username, 'pasword': password }).then(() => {
+       this.$router.push('/graphs')
      })
    }
   }
 </script>
 // https://blog.sqreen.com/authentication-best-practices-vue/
 // https://itnext.io/managing-and-refreshing-auth0-tokens-in-a-vuejs-application-65eb29c309bc
+// https://vuejs.org/v2/guide/state-management.html#Simple-State-Management-from-Scratch
+// or use vuex
+
+// can decode with https://www.npmjs.com/package/vue-jwt-decode
+// then get the expiration and test for a time near that so that a request can be made for a refresh token
+// this can then be sent for a new token to api
