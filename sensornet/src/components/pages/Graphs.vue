@@ -246,7 +246,7 @@ export default {
         // this.locations = ret.measurements
         // this.sensorIDs = ret.sensorIDs
         this.selection = 'sites'
-        // console.log(ret)
+        console.log(ret)
         this.sites = ret
         this.buttons = false
       })

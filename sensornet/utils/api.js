@@ -3,20 +3,28 @@
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import Vue from 'vue'
+import jwt_decode from 'jwt-decode'
 
 Vue.use(VueAxios, axios)
 
-const BASE_URL = 'https://skibo.duckdns.org/api';
-const AUTH_URL = 'https://skibo.duckdns.org/auth'
+const BASE_URL = 'http://nuc/api';
+const AUTH_URL = 'http://nuc/auth'
 Vue.axios.defaults.baseURL = BASE_URL;
+axios.defaults.headers.common['Authorization'] =
+  'Bearer ' + localStorage.getItem('jwt-token');
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.defaults.headers.put['Content-Type'] = 'application/json';
 axios.defaults.headers.delete['Content-Type'] = 'application/json';
 
-// access axios with Vue or use the 'this' reference in components
-// Vue.axios.post(...).then(res => {
-//     console.log('RES', res);
-// });
+// catch 401 Error
+axios.interceptors.response.use(response => {
+   return response;
+}, error => {
+  if (error.response.status === 401) {
+   //place your reentry code
+  }
+  return error;
+});
 
 export { getSensorTypes, postStartData, postCustomAx,
    getSites, getSensorDataSite, getSensorDataAll, getSensorDataTypes,
@@ -29,7 +37,10 @@ function Login () {
  const LoginRoutine = user => new Promise ((resolve, reject) => {
    axios.post(AUTH_URL, user)
      .then(resp => {
-       const token = resp.data.token
+       const token = resp.data.access_token
+       var decoded = jwt_decode(token);
+       console.log(decoded)
+      //  localStorage.setItem('roles', decoded.roles)
        localStorage.setItem('jwt-token', token) // store the token in localstorage
        localStorage.setItem('user', user.username)
        resolve(resp)
@@ -37,6 +48,7 @@ function Login () {
    .catch(err => {
      localStorage.removeItem('jwt-token') // if the request fails, remove any possible user token if possible
      localStorage.removeItem('user')
+    //  localStorage.removeItem('roles')
      reject(err)
    })
  })
