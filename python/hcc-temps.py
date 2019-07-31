@@ -37,7 +37,7 @@ def getToken():
     global headers
     r = requests.post(AUTH_URL, json = {'username': creds.user, 'password': creds.password})
     tokens = r.json()
-    print 'token data is: ' +str(tokens)
+    print ('token data is: ' +str(tokens))
     try:
         jwt = tokens['access_token']
         #jwt_refresh = tokens['refresh_token']
@@ -54,7 +54,7 @@ def post_data(data):
         print('Getting token')
         getToken()
     ret = requests.post(DATA_URL, json = data, headers = headers)
-    print 'JWT = '+str(jwt)
+    print ('JWT = '+str(jwt))
     print 'First response is: ' +str(ret)
     if '200' in str(ret):
         print('Success')
